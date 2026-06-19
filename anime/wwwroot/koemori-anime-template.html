@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KOEMORI — Anime Streaming Template</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0a0f;
+    --surface:#13121b;
+    --surface-2:#1b1928;
+    --surface-3:#221f33;
+    --border:rgba(255,255,255,.08);
+    --text:#f2efe6;
+    --text-dim:#9d98b0;
+    --text-faint:#6b6680;
+    --accent:#ff3d81;
+    --accent-soft:rgba(255,61,129,.16);
+    --accent-2:#ffc857;
+    --radius-lg:18px;
+    --radius-md:12px;
+    --radius-sm:8px;
+    --motion:1;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{background:var(--bg);color:var(--text);font-family:'Zen Kaku Gothic New',sans-serif;}
+  body{min-height:100vh;overflow-x:hidden;}
+  img,svg{display:block;}
+  button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;}
+  input{font-family:inherit;color:inherit;}
+  a{color:inherit;text-decoration:none;}
+  ::selection{background:var(--accent-soft);}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  .display{font-family:'Big Shoulders Display',sans-serif;}
+
+  /* ---------- layout ---------- */
+  .app{display:grid;grid-template-columns:248px 1fr 296px;min-height:100vh;}
+
+  /* ---------- sidebar ---------- */
+  .sidebar{
+    background:var(--surface);
+    border-right:1px solid var(--border);
+    padding:22px 16px 24px;
+    position:sticky;top:0;height:100vh;overflow-y:auto;
+    display:flex;flex-direction:column;gap:26px;
+    transition:width .25s ease;
+    z-index:40;
+  }
+  .sidebar::-webkit-scrollbar{width:0;}
+  .brand{display:flex;align-items:center;gap:10px;padding:0 6px;}
+  .brand__mark{
+    width:36px;height:36px;border-radius:10px;flex:none;
+    background:linear-gradient(140deg,var(--accent),var(--accent-2));
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Zen Kaku Gothic New';font-weight:900;font-size:17px;color:#0a0a0f;
+  }
+  .brand__name{font-family:'Big Shoulders Display';font-weight:800;font-size:19px;letter-spacing:.04em;white-space:nowrap;}
+  .brand__name span{color:var(--accent);}
+  .nav-group{display:flex;flex-direction:column;gap:3px;}
+  .nav-group__title{
+    font-family:'JetBrains Mono';font-size:10.5px;letter-spacing:.12em;color:var(--text-faint);
+    text-transform:uppercase;padding:0 12px;margin-bottom:6px;white-space:nowrap;
+  }
+  .nav-item{
+    display:flex;align-items:center;gap:12px;padding:9px 12px;border-radius:var(--radius-sm);
+    color:var(--text-dim);font-size:14.5px;font-weight:500;white-space:nowrap;
+    transition:background .15s,color .15s;width:100%;text-align:left;
+  }
+  .nav-item svg{flex:none;width:18px;height:18px;}
+  .nav-item:hover{background:var(--surface-2);color:var(--text);}
+  .nav-item.active{background:var(--accent-soft);color:var(--accent);}
+  .nav-item .label{overflow:hidden;}
+  .sidebar-foot{margin-top:auto;display:flex;flex-direction:column;gap:8px;}
+  .sidebar-collapse{
+    display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--radius-sm);
+    color:var(--text-faint);font-size:13px;white-space:nowrap;
+  }
+  .sidebar-collapse:hover{background:var(--surface-2);color:var(--text-dim);}
+  .sidebar-collapse svg{flex:none;width:16px;height:16px;transition:transform .25s;}
+
+  .sidebar.compact{width:78px;}
+  .sidebar.compact .brand__name,
+  .sidebar.compact .nav-group__title,
+  .sidebar.compact .label,
+  .sidebar.compact .collapse-label{display:none;}
+  .sidebar.compact .nav-item{justify-content:center;}
+  .sidebar.compact .sidebar-collapse svg{transform:rotate(180deg);}
+
+  .drawer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:35;backdrop-filter:blur(2px);}
+
+  /* ---------- main ---------- */
+  .main{min-width:0;display:flex;flex-direction:column;}
+  .topbar{
+    position:sticky;top:0;z-index:30;
+    display:flex;align-items:center;gap:18px;
+    padding:16px 28px;background:rgba(10,10,15,.85);backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border);
+  }
+  .hamburger{display:none;flex:none;}
+  .hamburger svg{width:20px;height:20px;}
+  .tabs{display:flex;gap:6px;background:var(--surface-2);padding:4px;border-radius:999px;flex:none;}
+  .tab{padding:7px 18px;border-radius:999px;font-size:13.5px;font-weight:700;color:var(--text-dim);}
+  .tab.active{background:var(--accent);color:#1a0510;}
+  .search{
+    flex:1;max-width:380px;display:flex;align-items:center;gap:8px;
+    background:var(--surface-2);border:1px solid var(--border);border-radius:999px;
+    padding:8px 14px;color:var(--text-dim);
+  }
+  .search svg{width:16px;height:16px;flex:none;}
+  .search input{background:none;border:none;outline:none;color:var(--text);font-size:13.5px;width:100%;}
+  .search input::placeholder{color:var(--text-faint);}
+  .top-actions{display:flex;align-items:center;gap:10px;margin-left:auto;flex:none;position:relative;}
+  .lang-toggle{
+    display:flex;background:var(--surface-2);border-radius:999px;padding:3px;border:1px solid var(--border);
+  }
+  .lang-toggle button{padding:5px 10px;border-radius:999px;font-size:11.5px;font-weight:700;color:var(--text-faint);font-family:'JetBrains Mono';}
+  .lang-toggle button.active{background:var(--accent);color:#1a0510;}
+  .icon-btn{
+    width:38px;height:38px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border);
+    display:flex;align-items:center;justify-content:center;color:var(--text-dim);position:relative;flex:none;
+  }
+  .icon-btn:hover{color:var(--text);}
+  .icon-btn svg{width:17px;height:17px;}
+  .badge-dot{
+    position:absolute;top:-3px;right:-3px;min-width:16px;height:16px;border-radius:999px;background:var(--accent);
+    font-size:9.5px;font-weight:700;display:flex;align-items:center;justify-content:center;color:#1a0510;padding:0 3px;
+    border:2px solid var(--bg);
+  }
+  .avatar-btn{width:38px;height:38px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;
+    background:var(--surface-2);border:1px solid var(--border);color:var(--text-dim);overflow:hidden;}
+  .avatar-btn.logged{background:linear-gradient(140deg,var(--accent),var(--accent-2));color:#1a0510;font-weight:800;font-family:'Big Shoulders Display';font-size:15px;}
+  .avatar-btn svg{width:18px;height:18px;}
+
+  .dropdown{
+    position:absolute;top:50px;right:0;width:300px;background:var(--surface-2);border:1px solid var(--border);
+    border-radius:var(--radius-md);box-shadow:0 18px 40px rgba(0,0,0,.5);padding:10px;display:none;z-index:50;
+  }
+  .dropdown.open{display:block;}
+  .dropdown__head{display:flex;align-items:center;justify-content:space-between;padding:6px 8px 10px;}
+  .dropdown__head strong{font-size:13.5px;}
+  .dropdown__head button{font-size:11.5px;color:var(--accent);font-weight:600;}
+  .notif{display:flex;gap:10px;padding:9px 8px;border-radius:var(--radius-sm);align-items:flex-start;}
+  .notif:hover{background:var(--surface-3);}
+  .notif__dot{width:7px;height:7px;border-radius:50%;background:var(--accent);margin-top:6px;flex:none;}
+  .notif.read .notif__dot{background:transparent;}
+  .notif__text{font-size:12.5px;color:var(--text-dim);line-height:1.4;}
+  .notif.read .notif__text{color:var(--text-faint);}
+  .notif__time{font-size:10.5px;color:var(--text-faint);font-family:'JetBrains Mono';margin-top:2px;}
+  .menu-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--radius-sm);font-size:13px;color:var(--text-dim);width:100%;text-align:left;}
+  .menu-item:hover{background:var(--surface-3);color:var(--text);}
+  .menu-item svg{width:15px;height:15px;}
+
+  /* ---------- views ---------- */
+  .view{display:none;padding:24px 28px 60px;}
+  .view.active{display:block;}
+
+  /* ---------- hero ---------- */
+  .hero{position:relative;border-radius:var(--radius-lg);overflow:hidden;height:380px;border:1px solid var(--border);}
+  .hero__slide{
+    position:absolute;inset:0;display:grid;grid-template-columns:1.1fr .9fr;
+    opacity:0;visibility:hidden;transition:opacity .5s ease;
+  }
+  .hero__slide.active{opacity:1;visibility:visible;}
+  .hero__copy{position:relative;z-index:2;padding:34px 30px;display:flex;flex-direction:column;gap:14px;justify-content:center;}
+  .hero__jp{font-family:'JetBrains Mono';font-size:12px;color:var(--text-faint);letter-spacing:.1em;}
+  .hero__title{font-family:'Big Shoulders Display';font-weight:800;font-size:46px;line-height:1;letter-spacing:.01em;
+    position:relative;display:inline-block;}
+  .hero__title::after{
+    content:'';position:absolute;left:0;bottom:-8px;height:6px;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent-2));
+    border-radius:4px;transition:width .8s cubic-bezier(.2,.7,.2,1);
+  }
+  .hero__slide.active .hero__title::after{width:62%;}
+  .hero__meta{display:flex;gap:10px;align-items:center;font-size:12.5px;color:var(--text-dim);font-family:'JetBrains Mono';}
+  .hero__meta .pip{width:4px;height:4px;border-radius:50%;background:var(--text-faint);}
+  .hero__subtabs{display:flex;gap:6px;margin-top:4px;}
+  .hero__subtab{padding:6px 14px;border-radius:999px;font-size:11.5px;font-weight:700;background:var(--surface-2);color:var(--text-dim);border:1px solid var(--border);}
+  .hero__subtab.active{background:var(--text);color:#0a0a0f;}
+  .hero__panel{font-size:13px;color:var(--text-dim);line-height:1.6;max-width:480px;min-height:58px;}
+  .hero__actions{display:flex;gap:10px;margin-top:6px;}
+  .btn{
+    display:flex;align-items:center;gap:7px;padding:10px 18px;border-radius:999px;font-size:13.5px;font-weight:700;
+  }
+  .btn svg{width:15px;height:15px;}
+  .btn--primary{background:var(--text);color:#0a0a0f;}
+  .btn--primary:hover{background:var(--accent);color:#1a0510;}
+  .btn--ghost{background:rgba(255,255,255,.08);color:var(--text);border:1px solid var(--border);}
+  .btn--ghost:hover{background:rgba(255,255,255,.14);}
+  .hero__art{position:relative;overflow:hidden;}
+  .hero__art-bg{position:absolute;inset:0;}
+  .hero__art-tex{position:absolute;inset:0;opacity:.16;
+    background:repeating-linear-gradient(115deg,rgba(255,255,255,.5) 0 2px,transparent 2px 22px);}
+  .hero__emblem{
+    position:absolute;right:-10px;bottom:-30px;font-size:230px;font-weight:900;line-height:1;
+    color:rgba(255,255,255,.14);font-family:'Zen Kaku Gothic New';
+  }
+  .hero__play{
+    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:62px;height:62px;border-radius:50%;background:rgba(0,0,0,.35);border:1.5px solid rgba(255,255,255,.5);
+    display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px);
+  }
+  .hero__play svg{width:20px;height:20px;color:#fff;margin-left:2px;}
+  .hero__play:hover{background:var(--accent);border-color:var(--accent);}
+  .hero__arrow{
+    position:absolute;top:50%;transform:translateY(-50%);width:34px;height:34px;border-radius:50%;
+    background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;color:#fff;z-index:5;
+    border:1px solid rgba(255,255,255,.18);
+  }
+  .hero__arrow:hover{background:var(--accent);}
+  .hero__arrow svg{width:15px;height:15px;}
+  .hero__arrow--prev{left:14px;}
+  .hero__arrow--next{right:14px;}
+  .hero__dots{position:absolute;bottom:14px;left:30px;display:flex;gap:6px;z-index:5;}
+  .dot{width:18px;height:4px;border-radius:4px;background:rgba(255,255,255,.25);}
+  .dot.active{background:var(--accent);width:26px;}
+
+  /* ---------- sections ---------- */
+  .section{margin-top:34px;}
+  .section__head{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;}
+  .section__label{font-family:'JetBrains Mono';font-size:11px;color:var(--accent);letter-spacing:.08em;}
+  .section__title{font-family:'Big Shoulders Display';font-weight:700;font-size:21px;}
+  .section__more{margin-left:auto;font-size:12px;color:var(--text-faint);font-family:'JetBrains Mono';}
+
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;}
+  .chip{padding:7px 15px;border-radius:999px;font-size:12.5px;font-weight:600;background:var(--surface-2);
+    color:var(--text-dim);border:1px solid var(--border);}
+  .chip.active{background:var(--accent);color:#1a0510;border-color:var(--accent);}
+  .chip:hover{color:var(--text);}
+
+  .row-scroll{display:flex;gap:16px;overflow-x:auto;padding-bottom:6px;scroll-snap-type:x proximity;}
+  .row-scroll::-webkit-scrollbar{height:6px;}
+  .row-scroll::-webkit-scrollbar-thumb{background:var(--surface-3);border-radius:6px;}
+  .row-scroll .card{flex:0 0 168px;scroll-snap-align:start;}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:16px;}
+
+  .card{position:relative;}
+  .card__art{
+    position:relative;border-radius:var(--radius-md);overflow:hidden;aspect-ratio:2/3;border:1px solid var(--border);
+  }
+  .card__bg{position:absolute;inset:0;}
+  .card__tex{position:absolute;inset:0;opacity:.14;
+    background:repeating-linear-gradient(115deg,rgba(255,255,255,.5) 0 2px,transparent 2px 20px);}
+  .card__emblem{position:absolute;right:-8px;bottom:-18px;font-size:108px;font-weight:900;color:rgba(255,255,255,.13);
+    font-family:'Zen Kaku Gothic New';}
+  .card__rating{
+    position:absolute;top:8px;left:8px;display:flex;align-items:center;gap:3px;background:rgba(0,0,0,.55);
+    padding:3px 7px;border-radius:999px;font-size:11px;font-family:'JetBrains Mono';font-weight:600;
+    backdrop-filter:blur(3px);
+  }
+  .card__rating svg{width:11px;height:11px;color:var(--accent-2);}
+  .card__overlay{
+    position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,rgba(8,7,12,.96) 78%);
+    opacity:0;transition:opacity .2s;display:flex;flex-direction:column;justify-content:flex-end;padding:10px;gap:8px;
+  }
+  .card__art:hover .card__overlay{opacity:1;}
+  .card__syn{font-size:11px;color:var(--text-dim);line-height:1.4;
+    display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+  .card__btns{display:flex;gap:6px;}
+  .card__btns button{
+    flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:7px 0;border-radius:999px;
+    font-size:11px;font-weight:700;
+  }
+  .card__play{background:var(--text);color:#0a0a0f;}
+  .card__play:hover{background:var(--accent);color:#1a0510;}
+  .card__add{background:rgba(255,255,255,.1);color:var(--text);border:1px solid var(--border);}
+  .card__add.added{background:var(--accent-soft);color:var(--accent);border-color:var(--accent);}
+  .card__btns svg{width:12px;height:12px;}
+  .card__body{padding-top:9px;}
+  .card__title{font-size:13.5px;font-weight:700;line-height:1.25;}
+  .card__sub{font-size:11px;color:var(--text-faint);margin-top:3px;font-family:'JetBrains Mono';}
+
+  .load-more-wrap{display:flex;justify-content:center;margin-top:22px;}
+  .load-more{padding:10px 26px;border-radius:999px;background:var(--surface-2);border:1px solid var(--border);
+    font-size:13px;font-weight:700;color:var(--text-dim);}
+  .load-more:hover{color:var(--text);border-color:var(--accent);}
+  .load-more.hidden{display:none;}
+
+  /* ---------- empty state ---------- */
+  .empty-state{
+    display:flex;flex-direction:column;align-items:flex-start;gap:14px;max-width:420px;margin-top:40px;
+  }
+  .empty-state__icon{width:54px;height:54px;border-radius:14px;background:var(--surface-2);border:1px solid var(--border);
+    display:flex;align-items:center;justify-content:center;color:var(--accent);}
+  .empty-state__icon svg{width:24px;height:24px;}
+  .empty-state h2{font-family:'Big Shoulders Display';font-size:24px;font-weight:700;}
+  .empty-state p{color:var(--text-dim);font-size:13.5px;line-height:1.6;}
+
+  /* ---------- right rail ---------- */
+  .rail{
+    background:var(--surface);border-left:1px solid var(--border);padding:22px 18px 30px;
+    position:sticky;top:0;height:100vh;overflow-y:auto;
+  }
+  .rail::-webkit-scrollbar{width:0;}
+  .rail__block{margin-bottom:30px;}
+  .rail__head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px;}
+  .rail__head .section__title{font-size:15.5px;}
+  .rail__more{font-size:11px;color:var(--accent);font-weight:700;font-family:'JetBrains Mono';}
+  .popular-item{display:flex;align-items:center;gap:11px;padding:8px 4px;border-radius:var(--radius-sm);}
+  .popular-item:hover{background:var(--surface-2);}
+  .popular-rank{font-family:'Big Shoulders Display';font-size:20px;font-weight:700;color:var(--text-faint);width:20px;flex:none;}
+  .popular-thumb{width:42px;height:54px;border-radius:7px;flex:none;position:relative;overflow:hidden;}
+  .popular-thumb span{position:absolute;right:-6px;bottom:-10px;font-size:34px;font-weight:900;color:rgba(255,255,255,.16);
+    font-family:'Zen Kaku Gothic New';}
+  .popular-info{min-width:0;}
+  .popular-info .t{font-size:12.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .popular-info .s{font-size:10.5px;color:var(--text-faint);font-family:'JetBrains Mono';margin-top:2px;}
+  .popular-extra{display:none;}
+  .popular-extra.show{display:block;}
+
+  .watch-item{display:flex;gap:11px;padding:9px 4px;align-items:center;}
+  .watch-thumb{width:42px;height:54px;border-radius:7px;flex:none;position:relative;overflow:hidden;}
+  .watch-thumb span{position:absolute;right:-6px;bottom:-10px;font-size:34px;font-weight:900;color:rgba(255,255,255,.16);
+    font-family:'Zen Kaku Gothic New';}
+  .watch-info{flex:1;min-width:0;}
+  .watch-info .t{font-size:12.5px;font-weight:700;}
+  .watch-info .s{font-size:10.5px;color:var(--text-faint);margin:4px 0 5px;font-family:'JetBrains Mono';}
+  .progress{height:4px;border-radius:4px;background:var(--surface-3);overflow:hidden;}
+  .progress__fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));border-radius:4px;}
+  .watch-empty{font-size:12px;color:var(--text-faint);padding:8px 4px;}
+
+  .schedule{display:flex;flex-direction:column;gap:4px;}
+  .sched-row{display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:var(--radius-sm);font-size:12px;}
+  .sched-row.today{background:var(--accent-soft);}
+  .sched-day{width:28px;flex:none;font-family:'JetBrains Mono';font-weight:700;color:var(--text-faint);}
+  .sched-row.today .sched-day{color:var(--accent);}
+  .sched-title{color:var(--text-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .sched-row.today .sched-title{color:var(--text);}
+
+  /* ---------- settings ---------- */
+  .settings-grid{display:grid;gap:22px;max-width:560px;margin-top:18px;}
+  .set-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;}
+  .set-card h3{font-family:'Big Shoulders Display';font-size:16px;margin-bottom:4px;}
+  .set-card p.desc{font-size:12px;color:var(--text-faint);margin-bottom:14px;}
+  .swatches{display:flex;gap:10px;}
+  .swatch{width:34px;height:34px;border-radius:50%;border:2px solid transparent;position:relative;}
+  .swatch.active{border-color:#fff;}
+  .swatch.active::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    color:#0a0a0f;font-size:13px;font-weight:900;}
+  .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-top:1px solid var(--border);}
+  .toggle-row:first-child{border-top:none;padding-top:0;}
+  .toggle-row .tt{font-size:13.5px;font-weight:600;}
+  .toggle-row .td{font-size:11.5px;color:var(--text-faint);margin-top:2px;}
+  .switch{width:42px;height:24px;border-radius:999px;background:var(--surface-3);position:relative;flex:none;border:1px solid var(--border);}
+  .switch::after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:var(--text-faint);
+    transition:transform .2s,background .2s;}
+  .switch.on{background:var(--accent-soft);border-color:var(--accent);}
+  .switch.on::after{transform:translateX(18px);background:var(--accent);}
+  .save-row{display:flex;justify-content:flex-end;}
+
+  /* ---------- modal ---------- */
+  .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:80;}
+  .modal-backdrop.open{display:flex;}
+  .modal{width:380px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:26px;position:relative;}
+  .modal__close{position:absolute;top:16px;right:16px;color:var(--text-faint);}
+  .modal__close:hover{color:var(--text);}
+  .modal__close svg{width:18px;height:18px;}
+  .modal__tabs{display:flex;gap:4px;background:var(--surface-2);border-radius:999px;padding:4px;margin:18px 0 20px;}
+  .modal__tab{flex:1;text-align:center;padding:8px 0;border-radius:999px;font-size:12.5px;font-weight:700;color:var(--text-dim);}
+  .modal__tab.active{background:var(--accent);color:#1a0510;}
+  .modal h2{font-family:'Big Shoulders Display';font-size:22px;}
+  .modal .sub{font-size:12px;color:var(--text-faint);margin-top:3px;}
+  .field{margin-bottom:12px;}
+  .field label{font-size:11.5px;color:var(--text-dim);display:block;margin-bottom:5px;}
+  .field input{width:100%;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);
+    padding:10px 12px;font-size:13px;outline:none;}
+  .field input:focus{border-color:var(--accent);}
+  .modal .btn--primary{width:100%;justify-content:center;margin-top:6px;}
+  .modal-form{display:none;}
+  .modal-form.active{display:block;}
+
+  /* ---------- toast ---------- */
+  .toast-stack{position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:8px;z-index:90;}
+  .toast{
+    background:var(--surface-2);border:1px solid var(--border);border-left:3px solid var(--accent);
+    padding:11px 16px;border-radius:var(--radius-sm);font-size:13px;box-shadow:0 10px 30px rgba(0,0,0,.4);
+    animation:toastIn .25s ease;max-width:280px;
+  }
+  @keyframes toastIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+  .toast.out{animation:toastOut .25s ease forwards;}
+  @keyframes toastOut{to{opacity:0;transform:translateX(20px);}}
+
+  /* ---------- reduced motion ---------- */
+  body.reduced-motion *{transition-duration:.01ms !important;animation-duration:.01ms !important;}
+
+  /* ---------- responsive ---------- */
+  @media (max-width:1240px){
+    .app{grid-template-columns:248px 1fr;}
+    .rail{display:none;}
+  }
+  @media (max-width:900px){
+    .app{grid-template-columns:1fr;}
+    .sidebar{position:fixed;left:0;top:0;width:260px;transform:translateX(-100%);transition:transform .25s ease;}
+    .sidebar.open{transform:translateX(0);}
+    .sidebar.compact{width:260px;}
+    .sidebar.compact .brand__name,.sidebar.compact .nav-group__title,.sidebar.compact .label,.sidebar.compact .collapse-label{display:block;}
+    .sidebar.compact .nav-item{justify-content:flex-start;}
+    .drawer-overlay.open{display:block;}
+    .hamburger{display:flex;}
+    .tabs{order:3;}
+    .search{order:2;max-width:none;}
+    .topbar{flex-wrap:wrap;gap:10px;}
+  }
+  @media (max-width:640px){
+    .hero{height:auto;}
+    .hero__slide{position:relative;grid-template-columns:1fr;opacity:1;visibility:visible;display:none;}
+    .hero__slide.active{display:grid;}
+    .hero__art{height:160px;order:-1;}
+    .hero__title{font-size:34px;}
+    .hero__copy{padding:22px;}
+    .view{padding:18px 16px 50px;}
+    .lang-toggle{order:4;}
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="drawer-overlay" id="drawerOverlay"></div>
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand__mark">声</div>
+      <div class="brand__name">KOE<span>MORI</span></div>
+    </div>
+
+    <nav class="nav-group">
+      <div class="nav-group__title" data-i18n data-en="Menu" data-vi="Menu">Menu</div>
+      <button class="nav-item active" data-view="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h14V10"/></svg><span class="label" data-i18n data-en="Home" data-vi="Trang chủ">Trang chủ</span></button>
+      <button class="nav-item" data-view="community"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><circle cx="17.2" cy="9" r="2.4"/><path d="M15.5 14.3c2.6.2 4.5 2 4.5 4.7"/></svg><span class="label" data-i18n data-en="Community" data-vi="Cộng đồng">Cộng đồng</span></button>
+      <button class="nav-item" data-view="events"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span class="label" data-i18n data-en="Events" data-vi="Sự kiện">Sự kiện</span></button>
+    </nav>
+
+    <nav class="nav-group">
+      <div class="nav-group__title" data-i18n data-en="Categories" data-vi="Danh mục">Danh mục</div>
+      <button class="nav-item" data-tab="movie"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 5v14M17 5v14M3 9h4M3 15h4M17 9h4M17 15h4"/></svg><span class="label" data-i18n data-en="Movies" data-vi="Phim chiếu rạp">Phim chiếu rạp</span></button>
+      <button class="nav-item" data-tab="series"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg><span class="label" data-i18n data-en="Series" data-vi="Phim bộ">Phim bộ</span></button>
+    </nav>
+
+    <nav class="nav-group">
+      <div class="nav-group__title" data-i18n data-en="Library" data-vi="Thư viện">Thư viện</div>
+      <button class="nav-item" data-view="recent"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg><span class="label" data-i18n data-en="Recent" data-vi="Đã xem gần đây">Đã xem gần đây</span></button>
+      <button class="nav-item" data-view="downloaded"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg><span class="label" data-i18n data-en="Downloaded" data-vi="Đã tải xuống">Đã tải xuống</span></button>
+    </nav>
+
+    <nav class="nav-group">
+      <div class="nav-group__title" data-i18n data-en="General" data-vi="Chung">Chung</div>
+      <button class="nav-item" data-view="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .35 1.9l.05.05a2 2 0 1 1-2.85 2.85l-.05-.05a1.7 1.7 0 0 0-1.9-.35 1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.55 1.7 1.7 0 0 0-1.9.35l-.05.05A2 2 0 1 1 4 16.9l.05-.05a1.7 1.7 0 0 0 .35-1.9 1.7 1.7 0 0 0-1.55-1H2.7a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4.35 8.7a1.7 1.7 0 0 0-.35-1.9L4 6.75A2 2 0 1 1 6.85 3.9l.05.05a1.7 1.7 0 0 0 1.9.35h0A1.7 1.7 0 0 0 9.8 2.7V2.6a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.9-.35l.05-.05A2 2 0 1 1 19.6 6.8l-.05.05a1.7 1.7 0 0 0-.35 1.9v0a1.7 1.7 0 0 0 1.55 1h.1a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.55 1Z"/></svg><span class="label" data-i18n data-en="Settings" data-vi="Cài đặt">Cài đặt</span></button>
+      <button class="nav-item" id="signInNav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg><span class="label" id="signInLabel" data-i18n data-en="Sign in" data-vi="Đăng nhập">Đăng nhập</span></button>
+    </nav>
+
+    <div class="sidebar-foot">
+      <button class="sidebar-collapse" id="collapseBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/><path d="M9 18l-6-6 6-6" opacity="0"/></svg>
+        <span class="collapse-label" data-i18n data-en="Collapse" data-vi="Thu gọn">Thu gọn</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <div class="main">
+    <header class="topbar">
+      <button class="hamburger icon-btn" id="hamburgerBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+
+      <div class="tabs">
+        <button class="tab" data-tab="movie" data-i18n data-en="Movies" data-vi="Phim lẻ">Phim lẻ</button>
+        <button class="tab active" data-tab="series" data-i18n data-en="Series" data-vi="Phim bộ">Phim bộ</button>
+      </div>
+
+      <div class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input id="searchInput" type="text" data-i18n-ph data-en-ph="Search anime..." data-vi-ph="Tìm anime..." placeholder="Tìm anime...">
+      </div>
+
+      <div class="top-actions">
+        <div class="lang-toggle">
+          <button class="active" data-lang="vi">VI</button>
+          <button data-lang="en">EN</button>
+        </div>
+
+        <button class="icon-btn" id="notifBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 1 0-12 0c0 5-2 6-2 7h16c0-1-2-2-2-7"/><path d="M9.5 21a2.5 2.5 0 0 0 5 0"/></svg>
+          <span class="badge-dot" id="notifBadge">3</span>
+        </button>
+        <div class="dropdown" id="notifDropdown">
+          <div class="dropdown__head">
+            <strong data-i18n data-en="Notifications" data-vi="Thông báo">Thông báo</strong>
+            <button id="markAllRead" data-i18n data-en="Mark all read" data-vi="Đánh dấu đã đọc">Đánh dấu đã đọc</button>
+          </div>
+          <div id="notifList"></div>
+        </div>
+
+        <button class="avatar-btn" id="avatarBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6"/></svg>
+        </button>
+        <div class="dropdown" id="avatarDropdown" style="width:200px;">
+          <button class="menu-item" id="goSettingsFromMenu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/></svg><span data-i18n data-en="Settings" data-vi="Cài đặt">Cài đặt</span></button>
+          <button class="menu-item" id="logoutBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg><span data-i18n data-en="Log out" data-vi="Đăng xuất">Đăng xuất</span></button>
+        </div>
+      </div>
+    </header>
+
+    <!-- ===== HOME VIEW ===== -->
+    <section class="view active" id="view-home">
+
+      <div class="hero" id="hero"></div>
+
+      <div class="section">
+        <div class="section__head">
+          <span class="section__label">人気</span>
+          <span class="section__title" data-i18n data-en="Genres" data-vi="Thể loại">Thể loại</span>
+        </div>
+        <div class="chips" id="chipRow"></div>
+      </div>
+
+      <div class="section">
+        <div class="section__head">
+          <span class="section__label">評価</span>
+          <span class="section__title" data-i18n data-en="Top Rated Anime" data-vi="Top đánh giá cao">Top đánh giá cao</span>
+        </div>
+        <div class="row-scroll" id="topRatedRow"></div>
+      </div>
+
+      <div class="section">
+        <div class="section__head">
+          <span class="section__label">最新</span>
+          <span class="section__title" data-i18n data-en="Latest Anime" data-vi="Mới cập nhật">Mới cập nhật</span>
+        </div>
+        <div class="grid" id="latestGrid"></div>
+        <div class="load-more-wrap">
+          <button class="load-more" id="loadMoreBtn" data-i18n data-en="Load more" data-vi="Xem thêm">Xem thêm</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== PLACEHOLDER VIEWS ===== -->
+    <section class="view" id="view-community">
+      <div class="empty-state">
+        <div class="empty-state__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/></svg></div>
+        <h2 data-i18n data-en="Community is brewing" data-vi="Cộng đồng đang được xây dựng">Cộng đồng đang được xây dựng</h2>
+        <p data-i18n data-en="Discussion boards, episode threads and fan clubs are coming soon. For now, head back and queue up something good." data-vi="Diễn đàn thảo luận, bình luận theo từng tập và fanclub sẽ sớm xuất hiện. Trong lúc chờ, hãy quay lại và chọn ngay một bộ anime hay.">Diễn đàn thảo luận, bình luận theo từng tập và fanclub sẽ sớm xuất hiện. Trong lúc chờ, hãy quay lại và chọn ngay một bộ anime hay.</p>
+        <button class="btn btn--primary" data-view="home" data-i18n data-en="Back to home" data-vi="Về trang chủ">Về trang chủ</button>
+      </div>
+    </section>
+
+    <section class="view" id="view-events">
+      <div class="empty-state">
+        <div class="empty-state__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></div>
+        <h2 data-i18n data-en="No events scheduled" data-vi="Chưa có sự kiện nào">Chưa có sự kiện nào</h2>
+        <p data-i18n data-en="Premiere watch-parties and seasonal countdowns will show up here once they're announced." data-vi="Các buổi xem ra mắt cùng nhau và lịch đếm ngược mùa mới sẽ xuất hiện ở đây ngay khi được công bố.">Các buổi xem ra mắt cùng nhau và lịch đếm ngược mùa mới sẽ xuất hiện ở đây ngay khi được công bố.</p>
+        <button class="btn btn--primary" data-view="home" data-i18n data-en="Back to home" data-vi="Về trang chủ">Về trang chủ</button>
+      </div>
+    </section>
+
+    <section class="view" id="view-recent">
+      <div class="section__head" style="margin-bottom:18px;">
+        <span class="section__label">履歴</span>
+        <span class="section__title" data-i18n data-en="Recently watched" data-vi="Đã xem gần đây">Đã xem gần đây</span>
+      </div>
+      <div class="grid" id="recentGrid"></div>
+    </section>
+
+    <section class="view" id="view-downloaded">
+      <div class="empty-state">
+        <div class="empty-state__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg></div>
+        <h2 data-i18n data-en="Nothing downloaded yet" data-vi="Chưa có gì được tải xuống">Chưa có gì được tải xuống</h2>
+        <p data-i18n data-en="Download an episode to watch offline — it'll show up in this list, ready whenever you are." data-vi="Tải một tập bất kỳ để xem offline — nó sẽ xuất hiện ở đây, sẵn sàng bất cứ khi nào bạn cần.">Tải một tập bất kỳ để xem offline — nó sẽ xuất hiện ở đây, sẵn sàng bất cứ khi nào bạn cần.</p>
+        <button class="btn btn--primary" data-view="home" data-i18n data-en="Browse anime" data-vi="Khám phá anime">Khám phá anime</button>
+      </div>
+    </section>
+
+    <!-- ===== SETTINGS VIEW ===== -->
+    <section class="view" id="view-settings">
+      <div class="section__head" style="margin-bottom:4px;">
+        <span class="section__label">設定</span>
+        <span class="section__title" data-i18n data-en="Settings" data-vi="Cài đặt">Cài đặt</span>
+      </div>
+
+      <div class="settings-grid">
+        <div class="set-card">
+          <h3 data-i18n data-en="Accent color" data-vi="Màu chủ đạo">Màu chủ đạo</h3>
+          <p class="desc" data-i18n data-en="Pick the highlight color used across buttons, tabs and progress bars." data-vi="Chọn màu nhấn dùng cho nút, tab và thanh tiến trình.">Chọn màu nhấn dùng cho nút, tab và thanh tiến trình.</p>
+          <div class="swatches" id="swatchRow"></div>
+        </div>
+
+        <div class="set-card">
+          <h3 data-i18n data-en="Interface" data-vi="Giao diện">Giao diện</h3>
+          <div class="toggle-row">
+            <div><div class="tt" data-i18n data-en="Compact sidebar" data-vi="Thu gọn sidebar">Thu gọn sidebar</div>
+              <div class="td" data-i18n data-en="Show icons only" data-vi="Chỉ hiển thị icon">Chỉ hiển thị icon</div></div>
+            <div class="switch" id="compactSwitch"></div>
+          </div>
+          <div class="toggle-row">
+            <div><div class="tt" data-i18n data-en="Reduced motion" data-vi="Giảm hiệu ứng động">Giảm hiệu ứng động</div>
+              <div class="td" data-i18n data-en="Pauses hero autoplay & transitions" data-vi="Tắt tự động chuyển banner & hiệu ứng">Tắt tự động chuyển banner & hiệu ứng</div></div>
+            <div class="switch" id="motionSwitch"></div>
+          </div>
+        </div>
+
+        <div class="set-card">
+          <h3 data-i18n data-en="Account" data-vi="Tài khoản">Tài khoản</h3>
+          <p class="desc" id="accountStatus" data-i18n data-en="You're browsing as a guest." data-vi="Bạn đang xem với tư cách khách.">Bạn đang xem với tư cách khách.</p>
+          <button class="btn btn--ghost" id="accountActionBtn" data-i18n data-en="Sign in" data-vi="Đăng nhập">Đăng nhập</button>
+        </div>
+
+        <div class="save-row">
+          <button class="btn btn--primary" id="saveSettingsBtn" data-i18n data-en="Save changes" data-vi="Lưu thay đổi">Lưu thay đổi</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ============ RIGHT RAIL ============ -->
+  <aside class="rail" id="rail">
+    <div class="rail__block">
+      <div class="rail__head">
+        <span class="section__title" data-i18n data-en="Popular Anime" data-vi="Phổ biến">Phổ biến</span>
+      </div>
+      <div id="popularList"></div>
+      <button class="rail__more" id="popularMoreBtn" data-i18n data-en="See more" data-vi="Xem thêm">Xem thêm</button>
+    </div>
+
+    <div class="rail__block">
+      <div class="rail__head">
+        <span class="section__title" data-i18n data-en="Watchlist" data-vi="Danh sách theo dõi">Danh sách theo dõi</span>
+      </div>
+      <div id="watchlist"></div>
+    </div>
+
+    <div class="rail__block">
+      <div class="rail__head">
+        <span class="section__title" data-i18n data-en="Weekly Schedule" data-vi="Lịch phát hành">Lịch phát hành</span>
+      </div>
+      <div class="schedule" id="schedule"></div>
+    </div>
+  </aside>
+</div>
+
+<!-- ============ AUTH MODAL ============ -->
+<div class="modal-backdrop" id="authBackdrop">
+  <div class="modal">
+    <button class="modal__close" id="modalClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <h2 data-i18n data-en="Welcome to Koemori" data-vi="Chào mừng đến Koemori">Chào mừng đến Koemori</h2>
+    <div class="sub" data-i18n data-en="Sign in to sync your watchlist." data-vi="Đăng nhập để đồng bộ danh sách theo dõi của bạn.">Đăng nhập để đồng bộ danh sách theo dõi của bạn.</div>
+
+    <div class="modal__tabs">
+      <button class="modal__tab active" data-mtab="login" data-i18n data-en="Sign in" data-vi="Đăng nhập">Đăng nhập</button>
+      <button class="modal__tab" data-mtab="register" data-i18n data-en="Create account" data-vi="Đăng ký">Đăng ký</button>
+    </div>
+
+    <form class="modal-form active" id="loginForm">
+      <div class="field"><label data-i18n data-en="Email" data-vi="Email">Email</label><input type="email" required placeholder="you@example.com"></div>
+      <div class="field"><label data-i18n data-en="Password" data-vi="Mật khẩu">Mật khẩu</label><input type="password" required placeholder="••••••••"></div>
+      <button class="btn btn--primary" type="submit" data-i18n data-en="Sign in" data-vi="Đăng nhập">Đăng nhập</button>
+    </form>
+    <form class="modal-form" id="registerForm">
+      <div class="field"><label data-i18n data-en="Display name" data-vi="Tên hiển thị">Tên hiển thị</label><input type="text" required placeholder="Yuki"></div>
+      <div class="field"><label data-i18n data-en="Email" data-vi="Email">Email</label><input type="email" required placeholder="you@example.com"></div>
+      <div class="field"><label data-i18n data-en="Password" data-vi="Mật khẩu">Mật khẩu</label><input type="password" required placeholder="••••••••"></div>
+      <button class="btn btn--primary" type="submit" data-i18n data-en="Create account" data-vi="Tạo tài khoản">Tạo tài khoản</button>
+    </form>
+  </div>
+</div>
+
+<div class="toast-stack" id="toastStack"></div>
+
+<script>
+/* ===================== ICONS ===================== */
+const ICON = {
+  play: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l13-7.5z"/></svg>',
+  plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>',
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M5 12l5 5L19 7"/></svg>',
+  star: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.6 7.1.7-5.4 4.7 1.7 7-6.3-3.8-6.3 3.8 1.7-7-5.4-4.7 7.1-.7z"/></svg>',
+  chevL: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 18l-6-6 6-6"/></svg>',
+  chevR: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 18l6-6-6-6"/></svg>',
+  info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v5h1"/></svg>'
+};
+
+/* ===================== DATA ===================== */
+const ANIME = [
+  {id:'kage', title:'Kage no Ken', jp:'影の剣', genres:['Action','Fantasy'], seasons:3, episodes:36, rating:9.1, type:'series', emblem:'影', c1:'#ff3d81', c2:'#240c1d', syn:'Một học viện kiếm thuật bí mật và cậu thiếu niên duy nhất nhìn thấy được lưỡi kiếm ẩn trong bóng tối.'},
+  {id:'ronin', title:'Neon Ronin', jp:'電浪人', genres:['Action','Sci-Fi'], seasons:2, episodes:24, rating:8.8, type:'series', emblem:'浪', c1:'#37c7c7', c2:'#0b2222', syn:'Tân Edo, năm 2099 — một kiếm sĩ lưu lạc bảo vệ những con hẻm cuối cùng chưa bị tập đoàn kiểm soát.'},
+  {id:'stardust', title:'Stardust Drifters', jp:'星屑漂流者', genres:['Sci-Fi','Drama'], seasons:1, episodes:12, rating:8.5, type:'series', emblem:'星', c1:'#8b7cff', c2:'#15102b', syn:'Thủy thủ đoàn của một con tàu hỏng trôi giữa dải ngân hà, tìm đường về một Trái Đất có thể không còn tồn tại.'},
+  {id:'crimson', title:'Crimson Tempo', jp:'緋色の律動', genres:['Sports','Drama'], seasons:4, episodes:50, rating:9.3, type:'series', emblem:'緋', c1:'#ffc857', c2:'#241a05', syn:'Một đội bóng hạng dưới và giấc mơ leo lên giải vô địch quốc gia, từng nhịp trống, từng trận đấu.'},
+  {id:'orchard', title:'Whispering Orchard', jp:'囁く果樹園', genres:['Slice of Life','Drama'], seasons:1, episodes:13, rating:8.2, type:'series', emblem:'囁', c1:'#7ce0a0', c2:'#0d2418', syn:'Một mùa hè ở vùng nông thôn, nơi ba người bạn học cách nói lời tạm biệt với tuổi thơ.'},
+  {id:'lotus', title:'Iron Lotus', jp:'鉄蓮', genres:['Mecha','Action'], seasons:2, episodes:26, rating:8.9, type:'series', emblem:'鉄', c1:'#ff8a5b', c2:'#241206', syn:'Phi công trẻ thừa kế cỗ máy của người mẹ đã mất, giữa cuộc nội chiến giành quyền kiểm soát quỹ đạo.'},
+  {id:'yume', title:'Yume Diaries', jp:'夢日記', genres:['Romance','Drama'], seasons:1, episodes:12, rating:8.0, type:'series', emblem:'夢', c1:'#ff3d81', c2:'#1d0a16', syn:'Hai người lạ chia sẻ cùng một giấc mơ lặp lại mỗi đêm, dần nhận ra nó đang thay đổi cuộc sống thật của họ.'},
+  {id:'ashfall', title:'Ashfall Academy', jp:'灰塵学園', genres:['Fantasy','School'], seasons:3, episodes:39, rating:8.7, type:'series', emblem:'灰', c1:'#6c5dd3', c2:'#130f2b', syn:'Một học viện phép thuật xây trên tàn tích núi lửa, nơi học sinh năm nhất phải học cách kiểm soát sức mạnh nguy hiểm của mình.'},
+  {id:'static', title:'Howling Static', jp:'静寂の咆哮', genres:['Horror','Mystery'], seasons:2, episodes:22, rating:8.4, type:'series', emblem:'咆', c1:'#d35b6c', c2:'#250a0d', syn:'Một đài radio bỏ hoang bắt được tín hiệu từ thứ gì đó không nên tồn tại.'},
+  {id:'papermoon', title:'Paper Moon Detectives', jp:'紙月探偵団', genres:['Mystery'], seasons:1, episodes:24, rating:8.6, type:'series', emblem:'紙', c1:'#ffc857', c2:'#1f1606', syn:'Hai thám tử thiếu niên giải quyết những vụ án kỳ lạ nhất của thành phố, từng manh mối giấy gấp một.'},
+  {id:'drift', title:"Drift's End", jp:'漂流の果て', genres:['Sci-Fi','Drama'], seasons:1, episodes:1, rating:8.3, type:'movie', emblem:'漂', c1:'#37c7c7', c2:'#0c2424', syn:'Phần kết điện ảnh của Stardust Drifters — chuyến trở về cuối cùng.'},
+  {id:'sakura', title:'The Last Sakura', jp:'最後の桜', genres:['Drama','Fantasy'], seasons:1, episodes:1, rating:9.0, type:'movie', emblem:'桜', c1:'#ff8fb0', c2:'#240e17', syn:'Một thị trấn nơi hoa sakura chỉ nở đúng một lần mỗi thế hệ — và lần này có thể là lần cuối.'},
+  {id:'lotusm', title:'Iron Lotus: Requiem', jp:'鉄蓮：鎮魂', genres:['Mecha','Action'], seasons:1, episodes:1, rating:8.8, type:'movie', emblem:'鎮', c1:'#ff8a5b', c2:'#221206', syn:'Trận chiến cuối cùng cho quỹ đạo, khép lại câu chuyện của Iron Lotus.'},
+  {id:'fox', title:'Midnight Fox Parade', jp:'狐の夜祭', genres:['Comedy','Fantasy'], seasons:1, episodes:1, rating:7.9, type:'movie', emblem:'狐', c1:'#ffc857', c2:'#201804', syn:'Một lễ hội linh hồn hỗn loạn, vui nhộn diễn ra chỉ một đêm mỗi năm.'}
+];
+
+const HERO_IDS = ['kage','ronin','crimson'];
+const HERO_CAST = {
+  kage:['Aiko Tanabe','Ren Kobari','Mio Asakura'],
+  ronin:['Sora Ibuki','Hana Mizushima','Jin Aragawa'],
+  crimson:['Tsubasa Endo','Riku Hashida','Nao Fujimori']
+};
+
+const GENRES = ['Tất cả','Action','Fantasy','Sci-Fi','Drama','Mecha','Horror','Mystery','Sports'];
+
+const ACCENTS = [
+  {name:'sakura',hex:'#ff3d81'},
+  {name:'yuzu',hex:'#ffc857'},
+  {name:'mizu',hex:'#37c7c7'},
+  {name:'fuji',hex:'#8b7cff'}
+];
+
+const SCHEDULE = [
+  {day:'T2',title:'Kage no Ken — Tập mới'},
+  {day:'T3',title:'Ashfall Academy — Tập mới'},
+  {day:'T4',title:'Neon Ronin — Tập mới'},
+  {day:'T5',title:'Howling Static — Tập mới'},
+  {day:'T6',title:'Crimson Tempo — Tập mới'},
+  {day:'T7',title:'Iron Lotus — Tập mới'},
+  {day:'CN',title:'Stardust Drifters — Tập mới'}
+];
+
+/* ===================== STATE ===================== */
+let state = {
+  lang:'vi',
+  tab:'series',
+  genre:'Tất cả',
+  search:'',
+  visibleCount:6,
+  watchlist:{ yume:{progress:50,ep:6,total:12}, papermoon:{progress:75,ep:18,total:24} },
+  popularExpanded:false,
+  notifs:[
+    {text:'Kage no Ken tập 37 vừa ra mắt.', time:'5 phút trước', read:false},
+    {text:'Crimson Tempo mùa 5 sắp được công bố.', time:'1 giờ trước', read:false},
+    {text:'Có bình luận mới trong Cộng đồng.', time:'3 giờ trước', read:false},
+    {text:'Paper Moon Detectives đã tải xuống xong.', time:'Hôm qua', read:true}
+  ],
+  loggedIn:false,
+  userInitial:'',
+  compact:false,
+  reducedMotion:false
+};
+
+const POPULAR_IDS = ['lotus','ashfall','crimson','static','papermoon','ronin'];
+const POPULAR_INITIAL = 4;
+
+/* ===================== HELPERS ===================== */
+function $(sel){return document.querySelector(sel);}
+function $all(sel){return Array.from(document.querySelectorAll(sel));}
+function findAnime(id){return ANIME.find(a=>a.id===id);}
+
+function artStyle(a){
+  return `background:radial-gradient(120% 120% at 15% 15%, ${a.c1}55, transparent 60%), linear-gradient(155deg, ${a.c1}, ${a.c2})`;
+}
+
+function showToast(msg){
+  const stack = $('#toastStack');
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  stack.appendChild(el);
+  setTimeout(()=>{
+    el.classList.add('out');
+    setTimeout(()=>el.remove(), 250);
+  }, 2400);
+}
+
+/* ===================== I18N ===================== */
+function applyLang(){
+  $all('[data-i18n]').forEach(el=>{
+    el.textContent = el.getAttribute('data-'+state.lang) || el.textContent;
+  });
+  $all('[data-i18n-ph]').forEach(el=>{
+    el.setAttribute('placeholder', el.getAttribute('data-'+state.lang+'-ph') || '');
+  });
+  $all('.lang-toggle button').forEach(b=>b.classList.toggle('active', b.dataset.lang===state.lang));
+}
+
+/* ===================== HERO ===================== */
+let heroIndex = 0;
+let heroTimer = null;
+let heroSubTab = 'story';
+
+function renderHero(){
+  const hero = $('#hero');
+  hero.innerHTML = '';
+  HERO_IDS.forEach((id, i)=>{
+    const a = findAnime(id);
+    const slide = document.createElement('div');
+    slide.className = 'hero__slide' + (i===heroIndex ? ' active':'');
+    slide.innerHTML = `
+      <div class="hero__copy">
+        <div class="hero__jp">${a.jp}</div>
+        <div class="hero__title display">${a.title}</div>
+        <div class="hero__meta">
+          <span class="mono">${a.seasons} Mùa</span><span class="pip"></span><span class="mono">${a.episodes} Tập</span>
+          <span class="pip"></span><span class="mono">★ ${a.rating}</span>
+        </div>
+        <div class="hero__subtabs">
+          <button class="hero__subtab ${heroSubTab==='story'?'active':''}" data-sub="story" data-i18n data-en="Story" data-vi="Nội dung">Nội dung</button>
+          <button class="hero__subtab ${heroSubTab==='cast'?'active':''}" data-sub="cast" data-i18n data-en="Voice cast" data-vi="Lồng tiếng">Lồng tiếng</button>
+        </div>
+        <div class="hero__panel">${heroSubTab==='story' ? a.syn : ('Lồng tiếng: ' + HERO_CAST[id].join(', '))}</div>
+        <div class="hero__actions">
+          <button class="btn btn--primary heroPlayBtn"><span>${ICON.play}</span><span data-i18n data-en="Watch now" data-vi="Xem ngay">Xem ngay</span></button>
+          <button class="btn btn--ghost heroAddBtn" data-id="${a.id}"><span>${state.watchlist[a.id]?ICON.check:ICON.plus}</span><span data-i18n data-en="My List" data-vi="Theo dõi">Theo dõi</span></button>
+        </div>
+      </div>
+      <div class="hero__art" style="${artStyle(a)}">
+        <div class="hero__art-tex"></div>
+        <div class="hero__emblem">${a.emblem}</div>
+        <button class="hero__play">${ICON.play}</button>
+      </div>`;
+    hero.appendChild(slide);
+  });
+
+  const arrowPrev = document.createElement('button');
+  arrowPrev.className = 'hero__arrow hero__arrow--prev';
+  arrowPrev.innerHTML = ICON.chevL;
+  arrowPrev.onclick = ()=>moveHero(-1);
+  const arrowNext = document.createElement('button');
+  arrowNext.className = 'hero__arrow hero__arrow--next';
+  arrowNext.innerHTML = ICON.chevR;
+  arrowNext.onclick = ()=>moveHero(1);
+
+  const dots = document.createElement('div');
+  dots.className = 'hero__dots';
+  HERO_IDS.forEach((id,i)=>{
+    const d = document.createElement('div');
+    d.className = 'dot' + (i===heroIndex?' active':'');
+    d.onclick = ()=>{ heroIndex=i; renderHero(); restartHeroTimer(); };
+    dots.appendChild(d);
+  });
+
+  hero.appendChild(arrowPrev);
+  hero.appendChild(arrowNext);
+  hero.appendChild(dots);
+
+  applyLang();
+
+  $all('.hero__subtab').forEach(btn=>{
+    btn.onclick = ()=>{ heroSubTab = btn.dataset.sub; renderHero(); };
+  });
+  $all('.heroPlayBtn').forEach(btn=>{
+    btn.onclick = ()=> showToast(state.lang==='vi' ? 'Đang phát bản demo…' : 'Playing demo…');
+  });
+  $all('.heroAddBtn').forEach(btn=>{
+    btn.onclick = ()=> toggleWatchlist(btn.dataset.id);
+  });
+  $all('.hero__play').forEach(btn=>{
+    btn.onclick = ()=> showToast(state.lang==='vi' ? 'Đang phát bản demo…' : 'Playing demo…');
+  });
+}
+
+function moveHero(dir){
+  heroIndex = (heroIndex + dir + HERO_IDS.length) % HERO_IDS.length;
+  renderHero();
+  restartHeroTimer();
+}
+function restartHeroTimer(){
+  clearInterval(heroTimer);
+  if(state.reducedMotion) return;
+  heroTimer = setInterval(()=>moveHero(1), 6000);
+}
+$('#hero') && ($('#hero').addEventListener('mouseenter', ()=>clearInterval(heroTimer)));
+document.addEventListener('mouseover', e=>{
+  if(e.target.closest('#hero')) clearInterval(heroTimer);
+});
+document.addEventListener('mouseout', e=>{
+  if(e.target.closest('#hero') && !e.relatedTarget?.closest?.('#hero')) restartHeroTimer();
+});
+
+/* ===================== CHIPS ===================== */
+function renderChips(){
+  const row = $('#chipRow');
+  row.innerHTML = '';
+  GENRES.forEach(g=>{
+    const c = document.createElement('button');
+    c.className = 'chip' + (g===state.genre?' active':'');
+    c.textContent = g;
+    c.onclick = ()=>{ state.genre = g; state.visibleCount = 6; renderChips(); renderContent(); };
+    row.appendChild(c);
+  });
+}
+
+/* ===================== CARD ===================== */
+function buildCard(a){
+  const inList = !!state.watchlist[a.id];
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = `
+    <div class="card__art" style="${artStyle(a)}">
+      <div class="card__tex"></div>
+      <div class="card__emblem">${a.emblem}</div>
+      <div class="card__rating">${ICON.star}<span>${a.rating}</span></div>
+      <div class="card__overlay">
+        <div class="card__syn">${a.syn}</div>
+        <div class="card__btns">
+          <button class="card__play" data-act="play" data-id="${a.id}">${ICON.play}<span data-i18n data-en="Play" data-vi="Xem">Xem</span></button>
+          <button class="card__add ${inList?'added':''}" data-act="add" data-id="${a.id}">${inList?ICON.check:ICON.plus}</button>
+        </div>
+      </div>
+    </div>
+    <div class="card__body">
+      <div class="card__title">${a.title}</div>
+      <div class="card__sub">${a.type==='movie' ? (state.lang==='vi'?'Phim lẻ':'Movie') : (a.seasons + (state.lang==='vi'?' mùa · ':' Season · ') + a.episodes + (state.lang==='vi'?' tập':' eps'))}</div>
+    </div>`;
+  card.querySelector('[data-act="play"]').onclick = ()=> showToast((state.lang==='vi'?'Đang phát: ':'Now playing: ') + a.title);
+  card.querySelector('[data-act="add"]').onclick = ()=> toggleWatchlist(a.id);
+  return card;
+}
+
+/* ===================== FILTER + RENDER CONTENT ===================== */
+function filteredAnime(){
+  return ANIME.filter(a=>{
+    if(a.type !== state.tab) return false;
+    if(state.genre !== 'Tất cả' && !a.genres.includes(state.genre)) return false;
+    if(state.search && !a.title.toLowerCase().includes(state.search.toLowerCase())) return false;
+    return true;
+  });
+}
+
+function renderContent(){
+  const list = filteredAnime();
+  const sorted = [...list].sort((a,b)=>b.rating-a.rating);
+  const topRated = sorted.slice(0,6);
+
+  const topRow = $('#topRatedRow');
+  topRow.innerHTML = '';
+  if(topRated.length===0){
+    topRow.innerHTML = `<div class="watch-empty" data-i18n data-en="No results found." data-vi="Không tìm thấy kết quả.">Không tìm thấy kết quả.</div>`;
+  }
+  topRated.forEach(a=> topRow.appendChild(buildCard(a)));
+
+  const rest = list.filter(a=>!topRated.includes(a));
+  const grid = $('#latestGrid');
+  grid.innerHTML = '';
+  const visible = rest.slice(0, state.visibleCount);
+  visible.forEach(a=> grid.appendChild(buildCard(a)));
+
+  const loadBtn = $('#loadMoreBtn');
+  loadBtn.classList.toggle('hidden', state.visibleCount >= rest.length);
+
+  applyLang();
+}
+
+/* ===================== WATCHLIST ===================== */
+function toggleWatchlist(id){
+  if(state.watchlist[id]){
+    delete state.watchlist[id];
+    showToast(state.lang==='vi' ? 'Đã xoá khỏi danh sách theo dõi' : 'Removed from watchlist');
+  }else{
+    state.watchlist[id] = {progress:0, ep:0, total: findAnime(id).episodes || 1};
+    showToast(state.lang==='vi' ? 'Đã thêm vào danh sách theo dõi' : 'Added to watchlist');
+  }
+  renderWatchlist();
+  renderContent();
+  renderHero();
+  renderRecent();
+}
+
+function renderWatchlist(){
+  const wrap = $('#watchlist');
+  const ids = Object.keys(state.watchlist);
+  if(ids.length===0){
+    wrap.innerHTML = `<div class="watch-empty" data-i18n data-en="Your watchlist is empty. Tap + on any title to add it." data-vi="Danh sách theo dõi đang trống. Nhấn + trên bất kỳ anime nào để thêm.">Danh sách theo dõi đang trống. Nhấn + trên bất kỳ anime nào để thêm.</div>`;
+    applyLang();
+    return;
+  }
+  wrap.innerHTML = '';
+  ids.forEach(id=>{
+    const a = findAnime(id);
+    const w = state.watchlist[id];
+    const item = document.createElement('div');
+    item.className = 'watch-item';
+    item.innerHTML = `
+      <div class="watch-thumb" style="${artStyle(a)}"><span>${a.emblem}</span></div>
+      <div class="watch-info">
+        <div class="t">${a.title}</div>
+        <div class="s mono">${w.progress>0 ? ((state.lang==='vi'?'Tập ':'Ep ') + w.ep + '/' + w.total) : (state.lang==='vi'?'Chưa xem':'Not started')}</div>
+        <div class="progress"><div class="progress__fill" style="width:${w.progress}%"></div></div>
+      </div>`;
+    wrap.appendChild(item);
+  });
+}
+
+/* ===================== RECENT VIEW ===================== */
+function renderRecent(){
+  const grid = $('#recentGrid');
+  grid.innerHTML = '';
+  const ids = Object.keys(state.watchlist);
+  if(ids.length===0){
+    grid.innerHTML = `<div class="empty-state"><div class="empty-state__icon">${ICON.info}</div><h2 data-i18n data-en="Nothing here yet" data-vi="Chưa có gì ở đây">Chưa có gì ở đây</h2><p data-i18n data-en="Anime you start watching will show up here." data-vi="Anime bạn bắt đầu xem sẽ xuất hiện ở đây.">Anime bạn bắt đầu xem sẽ xuất hiện ở đây.</p></div>`;
+    applyLang();
+    return;
+  }
+  ids.forEach(id=> grid.appendChild(buildCard(findAnime(id))));
+}
+
+/* ===================== POPULAR ===================== */
+function renderPopular(){
+  const wrap = $('#popularList');
+  wrap.innerHTML = '';
+  const count = state.popularExpanded ? POPULAR_IDS.length : POPULAR_INITIAL;
+  POPULAR_IDS.slice(0,count).forEach((id,i)=>{
+    const a = findAnime(id);
+    const item = document.createElement('div');
+    item.className = 'popular-item';
+    item.innerHTML = `
+      <div class="popular-rank display">${i+1}</div>
+      <div class="popular-thumb" style="${artStyle(a)}"><span>${a.emblem}</span></div>
+      <div class="popular-info">
+        <div class="t">${a.title}</div>
+        <div class="s mono">${a.seasons} ${state.lang==='vi'?'mùa':'Seasons'}</div>
+      </div>`;
+    wrap.appendChild(item);
+  });
+}
+
+/* ===================== SCHEDULE ===================== */
+function renderSchedule(){
+  const wrap = $('#schedule');
+  wrap.innerHTML = '';
+  const jsDay = new Date().getDay(); // 0 = Sun
+  const idx = jsDay===0 ? 6 : jsDay-1;
+  SCHEDULE.forEach((s,i)=>{
+    const row = document.createElement('div');
+    row.className = 'sched-row' + (i===idx?' today':'');
+    row.innerHTML = `<div class="sched-day mono">${s.day}</div><div class="sched-title">${s.title}</div>`;
+    wrap.appendChild(row);
+  });
+}
+
+/* ===================== NOTIFICATIONS ===================== */
+function renderNotifs(){
+  const list = $('#notifList');
+  list.innerHTML = '';
+  state.notifs.forEach((n,i)=>{
+    const el = document.createElement('div');
+    el.className = 'notif' + (n.read?' read':'');
+    el.innerHTML = `<div class="notif__dot"></div><div><div class="notif__text">${n.text}</div><div class="notif__time mono">${n.time}</div></div>`;
+    el.onclick = ()=>{ n.read = true; renderNotifs(); };
+    list.appendChild(el);
+  });
+  const unread = state.notifs.filter(n=>!n.read).length;
+  const badge = $('#notifBadge');
+  badge.textContent = unread;
+  badge.style.display = unread>0 ? 'flex' : 'none';
+}
+
+/* ===================== SETTINGS ===================== */
+function renderSwatches(){
+  const row = $('#swatchRow');
+  row.innerHTML = '';
+  ACCENTS.forEach(ac=>{
+    const sw = document.createElement('button');
+    sw.className = 'swatch' + (getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()===ac.hex ? ' active':'');
+    sw.style.background = ac.hex;
+    sw.onclick = ()=>{
+      document.documentElement.style.setProperty('--accent', ac.hex);
+      document.documentElement.style.setProperty('--accent-soft', ac.hex+'29');
+      renderSwatches();
+    };
+    row.appendChild(sw);
+  });
+}
+
+function setSwitch(el, on){
+  el.classList.toggle('on', on);
+}
+
+/* ===================== ROUTING ===================== */
+function showView(id){
+  $all('.view').forEach(v=>v.classList.remove('active'));
+  $('#view-'+id)?.classList.add('active');
+  $all('.nav-item[data-view]').forEach(n=>n.classList.toggle('active', n.dataset.view===id));
+  closeDrawer();
+}
+
+/* ===================== EVENTS ===================== */
+function initEvents(){
+  // sidebar nav routing
+  $all('.nav-item[data-view]').forEach(btn=>{
+    btn.addEventListener('click', ()=> showView(btn.dataset.view));
+  });
+  // sidebar category shortcuts (movies/series) -> set tab + go home
+  $all('.sidebar .nav-item[data-tab]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      setTab(btn.dataset.tab);
+      showView('home');
+    });
+  });
+  $all('.empty-state [data-view]').forEach(btn=>{
+    btn.addEventListener('click', ()=> showView(btn.dataset.view));
+  });
+
+  // top tabs
+  $all('.tabs .tab').forEach(btn=>{
+    btn.addEventListener('click', ()=> setTab(btn.dataset.tab));
+  });
+
+  // search
+  $('#searchInput').addEventListener('input', (e)=>{
+    state.search = e.target.value;
+    state.visibleCount = 6;
+    renderContent();
+  });
+
+  // load more
+  $('#loadMoreBtn').addEventListener('click', ()=>{
+    state.visibleCount += 4;
+    renderContent();
+  });
+
+  // popular see more
+  $('#popularMoreBtn').addEventListener('click', ()=>{
+    state.popularExpanded = !state.popularExpanded;
+    $('#popularMoreBtn').textContent = state.popularExpanded
+      ? (state.lang==='vi' ? 'Thu gọn' : 'Show less')
+      : (state.lang==='vi' ? 'Xem thêm' : 'See more');
+    renderPopular();
+  });
+
+  // language toggle
+  $all('.lang-toggle button').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      state.lang = btn.dataset.lang;
+      applyLang();
+      renderHero(); renderContent(); renderWatchlist(); renderPopular(); renderRecent(); renderNotifs();
+    });
+  });
+
+  // notifications dropdown
+  $('#notifBtn').addEventListener('click', (e)=>{
+    e.stopPropagation();
+    $('#avatarDropdown').classList.remove('open');
+    $('#notifDropdown').classList.toggle('open');
+  });
+  $('#markAllRead').addEventListener('click', ()=>{
+    state.notifs.forEach(n=>n.read=true);
+    renderNotifs();
+  });
+
+  // avatar dropdown / sign-in
+  $('#avatarBtn').addEventListener('click', (e)=>{
+    e.stopPropagation();
+    if(!state.loggedIn){ openAuth('login'); return; }
+    $('#notifDropdown').classList.remove('open');
+    $('#avatarDropdown').classList.toggle('open');
+  });
+  $('#signInNav').addEventListener('click', ()=>{
+    if(state.loggedIn){ showView('settings'); } else { openAuth('login'); }
+  });
+  document.addEventListener('click', ()=>{
+    $('#notifDropdown').classList.remove('open');
+    $('#avatarDropdown').classList.remove('open');
+  });
+  $('#goSettingsFromMenu').addEventListener('click', ()=> showView('settings'));
+  $('#logoutBtn').addEventListener('click', ()=>{
+    setLoggedIn(false);
+    showToast(state.lang==='vi' ? 'Đã đăng xuất' : 'Signed out');
+  });
+
+  // modal
+  $('#modalClose').addEventListener('click', closeAuth);
+  $('#authBackdrop').addEventListener('click', (e)=>{ if(e.target.id==='authBackdrop') closeAuth(); });
+  $all('.modal__tab').forEach(t=>{
+    t.addEventListener('click', ()=>{
+      $all('.modal__tab').forEach(x=>x.classList.remove('active'));
+      t.classList.add('active');
+      $all('.modal-form').forEach(f=>f.classList.remove('active'));
+      $('#'+t.dataset.mtab+'Form').classList.add('active');
+    });
+  });
+  $('#loginForm').addEventListener('submit', (e)=>{
+    e.preventDefault();
+    const email = e.target.querySelector('input[type=email]').value || 'guest';
+    setLoggedIn(true, email[0].toUpperCase());
+    closeAuth();
+    showToast(state.lang==='vi' ? 'Đăng nhập thành công (demo)' : 'Signed in (demo)');
+  });
+  $('#registerForm').addEventListener('submit', (e)=>{
+    e.preventDefault();
+    const name = e.target.querySelector('input[type=text]').value || 'guest';
+    setLoggedIn(true, name[0].toUpperCase());
+    closeAuth();
+    showToast(state.lang==='vi' ? 'Tạo tài khoản thành công (demo)' : 'Account created (demo)');
+  });
+
+  // settings
+  $('#compactSwitch').addEventListener('click', ()=>{
+    state.compact = !state.compact;
+    setSwitch($('#compactSwitch'), state.compact);
+    $('#sidebar').classList.toggle('compact', state.compact);
+  });
+  $('#motionSwitch').addEventListener('click', ()=>{
+    state.reducedMotion = !state.reducedMotion;
+    setSwitch($('#motionSwitch'), state.reducedMotion);
+    document.body.classList.toggle('reduced-motion', state.reducedMotion);
+    restartHeroTimer();
+  });
+  $('#saveSettingsBtn').addEventListener('click', ()=>{
+    showToast(state.lang==='vi' ? 'Đã lưu thay đổi' : 'Changes saved');
+  });
+  $('#accountActionBtn').addEventListener('click', ()=>{
+    if(state.loggedIn){ setLoggedIn(false); showToast(state.lang==='vi'?'Đã đăng xuất':'Signed out'); }
+    else { openAuth('login'); }
+  });
+
+  // sidebar collapse (desktop)
+  $('#collapseBtn').addEventListener('click', ()=>{
+    if(window.innerWidth <= 900) return;
+    state.compact = !state.compact;
+    $('#sidebar').classList.toggle('compact', state.compact);
+    setSwitch($('#compactSwitch'), state.compact);
+  });
+
+  // mobile drawer
+  $('#hamburgerBtn').addEventListener('click', openDrawer);
+  $('#drawerOverlay').addEventListener('click', closeDrawer);
+}
+
+function setTab(tab){
+  state.tab = tab;
+  state.visibleCount = 6;
+  $all('.tabs .tab').forEach(b=> b.classList.toggle('active', b.dataset.tab===tab));
+  renderContent();
+}
+
+function openDrawer(){
+  $('#sidebar').classList.add('open');
+  $('#drawerOverlay').classList.add('open');
+}
+function closeDrawer(){
+  if(window.innerWidth <= 900){
+    $('#sidebar').classList.remove('open');
+    $('#drawerOverlay').classList.remove('open');
+  }
+}
+
+function openAuth(tab){
+  $('#authBackdrop').classList.add('open');
+}
+function closeAuth(){
+  $('#authBackdrop').classList.remove('open');
+}
+
+function setLoggedIn(val, initial){
+  state.loggedIn = val;
+  state.userInitial = initial || '';
+  const avatarBtn = $('#avatarBtn');
+  const accStatus = $('#accountStatus');
+  const accBtn = $('#accountActionBtn');
+  const signInLabel = $('#signInLabel');
+  if(val){
+    avatarBtn.classList.add('logged');
+    avatarBtn.innerHTML = state.userInitial;
+    accStatus.textContent = (state.lang==='vi' ? 'Đăng nhập với tên hiển thị: ' : 'Signed in as: ') + state.userInitial;
+    accBtn.textContent = state.lang==='vi' ? 'Đăng xuất' : 'Sign out';
+    signInLabel.textContent = state.lang==='vi' ? 'Tài khoản' : 'Account';
+  }else{
+    avatarBtn.classList.remove('logged');
+    avatarBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6"/></svg>';
+    accStatus.textContent = state.lang==='vi' ? 'Bạn đang xem với tư cách khách.' : "You're browsing as a guest.";
+    accBtn.textContent = state.lang==='vi' ? 'Đăng nhập' : 'Sign in';
+    signInLabel.textContent = state.lang==='vi' ? 'Đăng nhập' : 'Sign in';
+  }
+}
+
+/* ===================== INIT ===================== */
+function init(){
+  applyLang();
+  renderHero();
+  renderChips();
+  renderContent();
+  renderWatchlist();
+  renderPopular();
+  renderSchedule();
+  renderNotifs();
+  renderRecent();
+  renderSwatches();
+  initEvents();
+  restartHeroTimer();
+}
+init();
+</script>
+</body>
+</html>
