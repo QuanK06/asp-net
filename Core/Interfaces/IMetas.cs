@@ -1,12 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Core
+namespace Core.Interfaces
 {
-    [Table("Anime_Details")]
-    public class Anime_Details
+    public interface IMetas
     {
-        [Key]
         public Guid Id { get; set; }
         [Required]
         [MaxLength(250)]
@@ -17,9 +14,12 @@ namespace Core
         [MaxLength(500)]
         public string? Description { get; set; }
         public string? Content { get; set; }
-        public string? View { get; set; } = "";
-        [ForeignKey("CategoriesId")]
-        public Guid? CategoriesId { get; set; }
-        public Categories? Categories { get; set; }
+        public Guid? CreatedBy { get; set; }
+        public DateTime? CreatedOn { get; set; }
+        public Guid? ModifiedBy { get; set; }
+        public DateTime? ModifiedOn { get; set; }
+        public string? KeyWord { get; set; }
+        public string? Des { get; set; }
+
     }
 }
