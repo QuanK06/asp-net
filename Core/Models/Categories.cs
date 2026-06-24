@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Core.Interfaces;
+using Core.Models;
 
 namespace Core
 {
@@ -20,5 +21,7 @@ namespace Core
         public Guid? ModifiedBy { get; set; }
         public DateTime? ModifiedOn { get; set; }
         public ICollection<Anime_Details> Anime_Details { get; set; } = new HashSet<Anime_Details>();
+        public ICollection<Categories> ChildCategory { get; set; } = new HashSet<Categories>();
+        public ICollection<Role> Roles { get; set; } = new HashSet<Role>();
     }
 }
