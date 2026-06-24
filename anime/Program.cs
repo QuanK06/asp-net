@@ -1,8 +1,11 @@
+using Microsoft.EntityFrameworkCore;
+using web.Models.EF;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-
+builder.Services.AddDbContext<AnimeContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("AnimeDb")));
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

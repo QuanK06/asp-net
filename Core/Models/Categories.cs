@@ -3,10 +3,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Core.Interfaces;
 using Core.Models;
 
-namespace Core
+namespace Core.Models
 {
-    [Table("Categories")] 
-    public class Categories : IAuditable 
+    [Table("Categories")]
+    public class Categories : IAuditable
     {
         [Key]
         public Guid Id { get; set; }

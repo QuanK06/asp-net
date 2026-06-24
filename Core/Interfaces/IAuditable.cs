@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Core.Interfaces
 {
-    internal class IAuditable
+    public class IAuditable
     {
         public Guid? CreatedBy { get; set; }
         public DateTime? CreatedOn { get; set; }

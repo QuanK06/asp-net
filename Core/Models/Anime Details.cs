@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Core
+namespace Core.Models
 {
     [Table("Anime_Details")]
     public class Anime_Details
@@ -10,7 +10,7 @@ namespace Core
         public Guid Id { get; set; }
         [Required]
         [MaxLength(250)]
-        public string Title { get; set; }
+        public string? Title { get; set; }
         [Required]
         [MaxLength(50)]
         public string? Picture { get; set; }

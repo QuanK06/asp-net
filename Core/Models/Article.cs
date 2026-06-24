@@ -7,18 +7,18 @@ using System.Text;
 using System.Threading.Tasks;
 using Core.Interfaces;
 
-namespace Core
+namespace Core.Models
 {
-    [Table("Blog_Details")]
+    [Table("Article")]
 
-    internal class Blog_Details : IAuditable , IMetas
+    public class Article : IAuditable , IMetas
     {
         [Key]
 
         public Guid Id { get; set; }
         [Required]
         [MaxLength(250)]
-        public string Title { get; set; }
+        public string? Title { get; set; }
         [Required]
         [MaxLength(50)]
         public string? Picture { get; set; }
