@@ -15,10 +15,13 @@
   <ItemGroup>
     <Folder Include="Areas\Admin\Data\" />
     <Folder Include="Areas\Admin\Models\" />
+    <Folder Include="Core.Database\bin\Debug\net8.0\" />
+    <Folder Include="Core.Database\obj\Debug\net8.0\refint\" />
+    <Folder Include="Core.Database\obj\Debug\net8.0\ref\" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Core\Core.csproj" />
+    <None Include="Core.Database\Core.Database.csproj" />
   </ItemGroup>
 
 </Project>
