@@ -1,23 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Core.Database.Models
+[Table("Authorize")]
+public class Authorize
 {
-    [Table("Authorized")]
-    public class Authorized
-    {
-        [Key]
-        public Guid Id { get; set; }
-        [ForeignKey("GroupId")]
-        public Guid? GroupId { get; set; }
-        [ForeignKey("RoleId")]
-        public Guid? RoleId { get; set; }
-        public Role? Role { get; set; }
-        public Group? Group { get; set; }
-    }
+    [Key] public Guid ID { get; set; }
+    public Guid GroupID { get; set; }
+    [ForeignKey("GroupID")] public virtual Group Group { get; set; }
+    public Guid RoleID { get; set; }
+    [ForeignKey("RoleID")] public virtual Role Role { get; set; }
 }

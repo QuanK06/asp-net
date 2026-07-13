@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Core.Database.Models
 {
-    internal class BlogDetails
+    internal class UserEngagement
     {
     }
 }

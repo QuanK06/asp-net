@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Core.Database.Models
 {
-    internal class AnimeDetails
+    internal class Filter
     {
     }
 }

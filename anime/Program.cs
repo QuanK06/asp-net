@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using web.Models.EF;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,6 +16,19 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+// 1. Đặt route của Area lên TRƯỚC 
+app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}"
+);
+
+// 2. Đặt route mặc định ở PHÍA DƯỚI 
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}"
+);
+
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
@@ -23,12 +36,5 @@ app.UseRouting();
 
 app.UseAuthorization();
 
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
 
-app.MapAreaControllerRoute(
-    name: "Admin",
-    areaName: "Admin",
-    pattern: "Admin/{controller=Home}/{action=Index}/{id?}");
 app.Run();

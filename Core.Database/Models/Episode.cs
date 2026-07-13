@@ -5,30 +5,27 @@ using Database.Interfaces;
 
 namespace Database.Models
 {
-    [Table("Article")]
-    public class Article : IAuditable, IMeta
+    [Table("Episode")]
+    public class Episode : IAuditable
     {
         [Key]
         public Guid ID { get; set; }
 
         [Required]
-        [MaxLength(250)]
-        public string Title { get; set; }
+        public int EpisodeNumber { get; set; } // Tập 1, Tập 2...
 
-        [MaxLength(250)]
-        public string Picture { get; set; }
+        [Required]
+        public string VideoUrl { get; set; } // Đường dẫn video (m3u8, mp4, iframe...)
 
-        [MaxLength(500)]
-        public string Intro { get; set; }
+        // Mối quan hệ ngoại với bảng Anime
+        public Guid AnimeID { get; set; }
+        [ForeignKey("AnimeID")]
+        public virtual Anime Anime { get; set; }
 
-        public string Content { get; set; }
-
-        //IAuditable & IMeta
+        //IAuditable
         public Guid? CreatedBy { get; set; }
         public DateTime? CreatedOn { get; set; }
         public Guid? ModifiedBy { get; set; }
         public DateTime? ModifiedOn { get; set; }
-        public string Keyword { get; set; }
-        public string Description { get; set; }
     }
 }

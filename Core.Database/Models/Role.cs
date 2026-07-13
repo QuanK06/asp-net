@@ -1,28 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Core.Database.Models;
 
-namespace Core.Database.Models
+[Table("Role")]
+public class Role
 {
-    [Table("Role")]
-    public class Role
-    {
-        [Key]
-        public Guid Id { get; set; }
-        [Required]
-        [MaxLength(150)]
-        public string? Name { get; set; } = "";
-        [Required]
-        [MaxLength(150)]
-        public string? Code { get; set; } = "";
-        [ForeignKey("CategoryId")]
-        public Guid? CategoryId { get; set; }
-        public Category? Category { get; set; }
-        public ICollection<Authorized> Authorizeds { get; set; } = new HashSet<Authorized>();
-
-    }
+    [Key] public Guid ID { get; set; }
+    [Required][MaxLength(150)] public string Name { get; set; }
+    [Required][MaxLength(150)] public string Code { get; set; }
+    public Guid CategoryID { get; set; }
+    [ForeignKey("CategoryID")] public virtual Category Category { get; set; }
+    public virtual ICollection<Authorize> Authorizes { get; set; }
 }

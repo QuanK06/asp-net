@@ -2,9 +2,10 @@
 
 namespace web.Areas.Admin.Controllers
 {
-    public class HomeAdminController : Controller
+    [Area("Admin")]
+    public class HomeController : Controller
     {
-        public IActionResult Index()
+        public IActionResult AdminIndex()
         {
             return View();
         }
