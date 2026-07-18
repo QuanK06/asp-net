@@ -1,0 +1,165 @@
+@model AnimeVietsub.Core.Models.Anime
+@{ ViewData["Title"] = $"Quản lý tập - {Model.TenAnime}"; ViewData["ActiveMenu"] = "AnimeQuanLy"; }
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="card-title">Danh sách tập - @Model.TenAnime</h3>
+        <div>
+            <a asp-action="Index" class="btn btn-default btn-sm">Quay lại</a>
+            <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#modalTap" onclick="moTaoTapMoi()">
+                <i class="fas fa-plus"></i> Thêm tập
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        <table class="table table-bordered table-striped">
+            <thead><tr><th>Tập</th><th>Tiêu đề</th><th>Nguồn</th><th>Thumbnail</th><th>Lượt xem</th><th>Hành động</th></tr></thead>
+            <tbody>
+                @foreach (var tap in Model.DanhSachTap.OrderBy(t => t.SoTap))
+                {
+                    <tr>
+                        <td>@tap.SoTap</td>
+                        <td>@tap.TieuDeTap</td>
+                        <td>
+                            @if (tap.LoaiNguonVideo == "Embed")
+                            {
+                                <span class="badge badge-info">Nhúng (YouTube/Drive...)</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-secondary">Link trực tiếp (.mp4)</span>
+                            }
+                        </td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(tap.Thumbnail))
+                            {
+                                <img src="@tap.Thumbnail" style="width:70px" class="img-thumbnail" />
+                            }
+                        </td>
+                        <td>@tap.LuotXem</td>
+                        <td>
+                            <button class="btn btn-sm btn-warning"
+                                    onclick='moSuaTap(@tap.TapPhimId, @tap.SoTap, "@tap.TieuDeTap", "@Html.Raw(tap.DuongDanVideo)", "@tap.LoaiNguonVideo")'>
+                                <i class="fas fa-pen"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="xoaTap(@tap.TapPhimId)"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal them/sua tap - dung LINK video thay vi upload file (Somee free khong du dung luong luu video) -->
+<div class="modal fade" id="modalTap">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTapTieuDe">Thêm tập</h5>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <form id="formTap" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <input type="hidden" id="tapPhimId" name="tapPhimId" value="0" />
+                    <input type="hidden" name="animeId" value="@Model.AnimeId" />
+                    <div class="form-group">
+                        <label>Số tập</label>
+                        <input type="number" id="soTap" name="soTap" class="form-control" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Tiêu đề tập</label>
+                        <input type="text" id="tieuDeTap" name="tieuDeTap" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label>Loại nguồn video</label>
+                        <select id="loaiNguonVideo" name="loaiNguonVideo" class="form-control">
+                            <option value="TrucTiep">Link video trực tiếp (.mp4, phát bằng thẻ video)</option>
+                            <option value="Embed">Link nhúng (YouTube, Google Drive, iframe...)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Link video</label>
+                        <input type="text" id="duongDanVideo" name="duongDanVideo" class="form-control"
+                               placeholder="vd: https://example.com/video.mp4 hoặc https://www.youtube.com/embed/xxxxx" required />
+                        <small class="form-text text-muted" id="ghiChuLink">
+                            Link trực tiếp: phải là link .mp4 thật (vd link từ Google Drive/OneDrive dạng direct download, hoặc CDN video).
+                        </small>
+                    </div>
+                    <div class="form-group">
+                        <label>Ảnh thumbnail (vẫn upload lên server, ảnh nhẹ nên không lo dung lượng)</label>
+                        <div class="custom-file">
+                            <input type="file" name="fileThumbnail" class="custom-file-input" id="fileThumbnail" accept="image/*">
+                            <label class="custom-file-label" for="fileThumbnail">Chọn ảnh...</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-danger" onclick="luuTap()">Lưu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    $('.custom-file-input').on('change', function () {
+        var fileName = $(this).val().split('\\').pop() || 'Chọn ảnh...';
+        $(this).siblings('.custom-file-label').text(fileName);
+    });
+
+    $('#loaiNguonVideo').on('change', function () {
+        if ($(this).val() === 'Embed') {
+            $('#ghiChuLink').text('Link nhúng: lấy link "Embed" từ YouTube (Chia sẻ > Nhúng > copy link trong src=""), không dán link youtube.com/watch thường.');
+        } else {
+            $('#ghiChuLink').text('Link trực tiếp: phải là link .mp4 thật (vd link từ Google Drive/OneDrive dạng direct download, hoặc CDN video).');
+        }
+    });
+
+    function moTaoTapMoi() {
+        $('#modalTapTieuDe').text('Thêm tập');
+        $('#tapPhimId').val(0);
+        $('#soTap').val('');
+        $('#tieuDeTap').val('');
+        $('#duongDanVideo').val('');
+        $('#loaiNguonVideo').val('TrucTiep').trigger('change');
+    }
+
+    function moSuaTap(id, soTap, tieuDe, duongDanVideo, loaiNguon) {
+        $('#modalTapTieuDe').text('Sửa tập');
+        $('#tapPhimId').val(id);
+        $('#soTap').val(soTap);
+        $('#tieuDeTap').val(tieuDe);
+        $('#duongDanVideo').val(duongDanVideo);
+        $('#loaiNguonVideo').val(loaiNguon || 'TrucTiep').trigger('change');
+        $('#modalTap').modal('show');
+    }
+
+    // Khong con can XMLHttpRequest + progress bar vi khong upload file video nua, dung Ajax thuong (Lab 05)
+    function luuTap() {
+        var form = document.getElementById('formTap');
+        var data = new FormData(form);
+
+        $.ajax({
+            url: '/Admin/AnimeQuanLy/LuuTap',
+            method: 'POST',
+            data: data,
+            contentType: false,
+            processData: false,
+            success: function (res) {
+                if (res.success) location.reload();
+                else alert(res.message);
+            }
+        });
+    }
+
+    function xoaTap(id) {
+        if (!confirm('Xóa tập này?')) return;
+        $.post('/Admin/AnimeQuanLy/XoaTap', { id: id }, function (res) {
+            if (res.success) location.reload();
+        });
+    }
+</script>
+}

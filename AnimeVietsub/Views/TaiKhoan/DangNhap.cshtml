@@ -1,0 +1,45 @@
+@{ ViewData["Title"] = "Đăng nhập"; }
+
+<section class="breadcrumb-option normal-breadcrumb set-bg" data-setbg="/template/img/normal-breadcrumb.jpg">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <div class="normal__breadcrumb__text">
+                    <h2>Đăng nhập</h2>
+                    <p>Chào mừng bạn đến với AnimeVietsub.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="login spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="login__form">
+                    <h3>Đăng nhập</h3>
+                    <div asp-validation-summary="All" class="text-danger"></div>
+                    <form method="post" asp-action="DangNhap" asp-route-returnUrl="@ViewBag.ReturnUrl">
+                        <div class="input__item">
+                            <input type="email" name="email" placeholder="Email">
+                            <span class="icon_mail"></span>
+                        </div>
+                        <div class="input__item">
+                            <input type="password" name="matKhau" placeholder="Mật khẩu">
+                            <span class="icon_lock"></span>
+                        </div>
+                        <button type="submit" class="site-btn">Đăng nhập</button>
+                    </form>
+                    <p class="mt-3"><a asp-action="QuenMatKhau" class="text-muted">Quên mật khẩu?</a></p>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="login__register">
+                    <h3>Chưa có tài khoản?</h3>
+                    <a asp-action="DangKy" class="primary-btn">Đăng ký ngay</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

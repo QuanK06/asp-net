@@ -1,0 +1,38 @@
+@model List<AnimeVietsub.Core.Models.TinTuc>
+@{ ViewData["Title"] = "Quản lý Tin tức"; ViewData["ActiveMenu"] = "TinTuc"; }
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="card-title">Danh sách tin tức</h3>
+        <a class="btn btn-danger btn-sm" asp-action="ThemSua"><i class="fas fa-plus"></i> Thêm tin</a>
+    </div>
+    <div class="card-body">
+        <table class="table table-bordered table-striped">
+            <thead><tr><th>Ảnh</th><th>Tiêu đề</th><th>Ngày đăng</th><th>Hiển thị</th><th>Hành động</th></tr></thead>
+            <tbody>
+                @foreach (var tt in Model)
+                {
+                    <tr>
+                        <td>@if (!string.IsNullOrEmpty(tt.AnhDaiDien)) { <img src="@tt.AnhDaiDien" style="width:70px" class="img-thumbnail" /> }</td>
+                        <td>@tt.TieuDe</td>
+                        <td>@tt.NgayDang.ToString("dd/MM/yyyy")</td>
+                        <td>@(tt.AnHien ? "Có" : "Ẩn")</td>
+                        <td>
+                            <a class="btn btn-sm btn-warning" asp-action="ThemSua" asp-route-id="@tt.TinTucId"><i class="fas fa-pen"></i></a>
+                            <button class="btn btn-sm btn-danger" onclick="xoaTin(@tt.TinTucId)"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function xoaTin(id) {
+        if (!confirm('Xóa tin tức này?')) return;
+        $.post('/Admin/TinTuc/Xoa', { id: id }, function (res) { if (res.success) location.reload(); });
+    }
+</script>
+}

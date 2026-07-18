@@ -1,0 +1,162 @@
+@model AnimeVietsub.Areas.Admin.Models.AnimeFormViewModel
+@{
+    ViewData["Title"] = Model.Anime.AnimeId == 0 ? "Thêm Anime" : "Sửa Anime";
+    ViewData["ActiveMenu"] = "AnimeQuanLy";
+}
+
+<form asp-action="ThemSua" method="post" enctype="multipart/form-data">
+    <input type="hidden" asp-for="Anime.AnimeId" />
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card card-danger card-outline">
+                <div class="card-header"><h3 class="card-title">Thông tin Anime</h3></div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label>Tên Anime</label>
+                        <input asp-for="Anime.TenAnime" class="form-control" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Tên khác (Tiếng Nhật / Tiếng Anh)</label>
+                        <input asp-for="Anime.TenKhac" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label>Mô tả</label>
+                        <textarea asp-for="Anime.MoTa" class="form-control" rows="4"></textarea>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-3 form-group">
+                            <label>Năm phát hành</label>
+                            <input asp-for="Anime.NamPhatHanh" class="form-control" />
+                        </div>
+                        <div class="col-md-3 form-group">
+                            <label>Trạng thái</label>
+                            <select asp-for="Anime.TrangThai" class="form-control">
+                                <option value="Đang chiếu">Đang chiếu</option>
+                                <option value="Hoàn thành">Hoàn thành</option>
+                                <option value="Sắp chiếu">Sắp chiếu</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 form-group">
+                            <label>Định dạng phát sóng</label>
+                            <select asp-for="Anime.DinhDangPhatSong" class="form-control">
+                                <option value="TV Series">TV Series</option>
+                                <option value="Movie">Movie</option>
+                                <option value="OVA">OVA</option>
+                                <option value="ONA">ONA</option>
+                                <option value="Special">Special</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 form-group">
+                            <label>Quốc gia</label>
+                            <input asp-for="Anime.QuocGia" class="form-control" value="Nhật Bản" />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-3 form-group">
+                            <label>Số mùa (Season)</label>
+                            <input asp-for="Anime.SoMua" type="number" min="1" class="form-control" value="1" />
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <label>Phương thức dịch</label>
+                            <select asp-for="Anime.PhuongThucDich" class="form-control">
+                                <option value="Vietsub">Vietsub</option>
+                                <option value="Thuyết minh">Thuyết minh</option>
+                                <option value="Lồng tiếng">Lồng tiếng</option>
+                                <option value="Vietsub + Thuyết minh">Vietsub + Thuyết minh</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-3 form-group">
+                            <label>Đạo diễn</label>
+                            <input asp-for="Anime.DaoDien" class="form-control" />
+                        </div>
+                        <div class="col-md-3 form-group">
+                            <label>Studio</label>
+                            <input asp-for="Anime.Studio" class="form-control" />
+                        </div>
+                        <div class="col-md-2 form-group">
+                            <label>Chất lượng</label>
+                            <select asp-for="Anime.ChatLuong" class="form-control">
+                                <option value="HD">HD</option>
+                                <option value="FullHD">FullHD</option>
+                                <option value="4K">4K</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 form-group">
+                            <label>Thời lượng (phút)</label>
+                            <input asp-for="Anime.ThoiLuongPhut" type="number" class="form-control" placeholder="vd: 24" />
+                        </div>
+                        <div class="col-md-2 form-group">
+                            <label>Rating</label>
+                            <select asp-for="Anime.Rating" class="form-control">
+                                <option value="">-- Chọn --</option>
+                                <option value="P - Phù hợp mọi lứa tuổi">P - Phù hợp mọi lứa tuổi</option>
+                                <option value="K - Dưới 13 tuổi cần người lớn hướng dẫn">K - Dưới 13 tuổi</option>
+                                <option value="PG-13 - Teens 13 tuổi trở lên">PG-13 - 13 tuổi trở lên</option>
+                                <option value="16+ - Trên 16 tuổi">16+ - Trên 16 tuổi</option>
+                                <option value="18+ - Trên 18 tuổi">18+ - Trên 18 tuổi</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Link Trailer (YouTube embed, vd: https://www.youtube.com/embed/xxxxx)</label>
+                        <input asp-for="Anime.TrailerUrl" class="form-control" placeholder="https://www.youtube.com/embed/..." />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Thể loại</label><br />
+                        @foreach (var tl in Model.TatCaTheLoai)
+                        {
+                            <div class="icheck-primary d-inline-block mr-3">
+                                <input type="checkbox" name="TheLoaiDaChon" value="@tl.TheLoaiId" id="tl_@tl.TheLoaiId"
+                                       checked="@Model.TheLoaiDaChon.Contains(tl.TheLoaiId)">
+                                <label for="tl_@tl.TheLoaiId">@tl.TenTheLoai</label>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="icheck-primary mb-2">
+                        <input asp-for="Anime.NoiBat" type="checkbox">
+                        <label for="Anime_NoiBat">Hiển thị ở Hero banner trang chủ</label>
+                    </div>
+                    <div class="icheck-primary mb-2">
+                        <input asp-for="Anime.AnHien" type="checkbox" checked>
+                        <label for="Anime_AnHien">Hiển thị trên trang</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card card-outline card-warning">
+                <div class="card-header"><h3 class="card-title">Poster (dọc, tỉ lệ 2:3)</h3></div>
+                <div class="card-body text-center">
+                    @if (!string.IsNullOrEmpty(Model.Anime.Poster))
+                    {
+                        <img src="@Model.Anime.Poster" class="img-fluid mb-2 rounded" />
+                    }
+                    <input type="file" name="FilePoster" class="form-control" accept="image/*" />
+                </div>
+            </div>
+            <div class="card card-outline card-warning">
+                <div class="card-header"><h3 class="card-title">Ảnh Banner (ngang, hero)</h3></div>
+                <div class="card-body text-center">
+                    @if (!string.IsNullOrEmpty(Model.Anime.AnhBanner))
+                    {
+                        <img src="@Model.Anime.AnhBanner" class="img-fluid mb-2 rounded" />
+                    }
+                    <input type="file" name="FileBanner" class="form-control" accept="image/*" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-danger"><i class="fas fa-save"></i> Lưu</button>
+    <a asp-action="Index" class="btn btn-default">Hủy</a>
+</form>

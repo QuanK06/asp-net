@@ -1,0 +1,166 @@
+@using AnimeVietsub.Core.Models
+@{
+    ViewData["Title"] = "Trang chủ";
+    var heroSlides = ViewBag.HeroSlides as List<Anime> ?? new List<Anime>();
+    var trendingNow = ViewBag.TrendingNow as List<Anime> ?? new List<Anime>();
+    var popularShows = ViewBag.PopularShows as List<Anime> ?? new List<Anime>();
+    var recentlyAdded = ViewBag.RecentlyAdded as List<Anime> ?? new List<Anime>();
+    var liveAction = ViewBag.LiveAction as List<Anime> ?? new List<Anime>();
+    var topViews = ViewBag.TopViews as List<Anime> ?? new List<Anime>();
+    var binhLuanMoi = ViewBag.BinhLuanMoi as List<BinhLuan> ?? new List<BinhLuan>();
+}
+
+<section class="hero">
+    <div class="container">
+        <div class="hero__slider owl-carousel">
+            @if (heroSlides.Any())
+            {
+                foreach (var a in heroSlides)
+                {
+                    <div class="hero__items set-bg" data-setbg="@(string.IsNullOrEmpty(a.AnhBanner) ? "/template/img/hero/hero-1.jpg" : a.AnhBanner)">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="hero__text">
+                                    <div class="label">@a.TrangThai</div>
+                                    <h2>@a.TenAnime</h2>
+                                    <p>@a.MoTa</p>
+                                    <a asp-controller="Anime" asp-action="ChiTiet" asp-route-id="@a.AnimeId"><span>Xem ngay</span> <i class="fa fa-angle-right"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="hero__items set-bg" data-setbg="/template/img/hero/hero-1.jpg">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="hero__text">
+                                <div class="label">AnimeVietsub</div>
+                                <h2>Chào mừng đến với AnimeVietsub</h2>
+                                <p>Vào trang Admin để thêm anime nổi bật đầu tiên.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<section class="product spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="trending__product">
+                    <div class="row">
+                        <div class="col-lg-8 col-md-8 col-sm-8">
+                            <div class="section-title"><h4>Trending Now</h4></div>
+                        </div>
+                        <div class="col-lg-4 col-md-4 col-sm-4">
+                            <div class="btn__all"><a asp-controller="Anime" asp-action="DanhSach" class="primary-btn">Xem tất cả <span class="arrow_right"></span></a></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        @foreach (var a in trendingNow)
+                        {
+                            <partial name="_AnimeCard" model="a" />
+                        }
+                        @if (!trendingNow.Any()) { <p class="text-muted px-3">Chưa có dữ liệu.</p> }
+                    </div>
+                </div>
+
+                <div class="popular__product">
+                    <div class="row">
+                        <div class="col-lg-8 col-md-8 col-sm-8">
+                            <div class="section-title"><h4>Popular Shows</h4></div>
+                        </div>
+                        <div class="col-lg-4 col-md-4 col-sm-4">
+                            <div class="btn__all"><a asp-controller="Anime" asp-action="DanhSach" class="primary-btn">Xem tất cả <span class="arrow_right"></span></a></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        @foreach (var a in popularShows)
+                        {
+                            <partial name="_AnimeCard" model="a" />
+                        }
+                        @if (!popularShows.Any()) { <p class="text-muted px-3">Chưa có dữ liệu.</p> }
+                    </div>
+                </div>
+
+                <div class="recent__product">
+                    <div class="row">
+                        <div class="col-lg-8 col-md-8 col-sm-8">
+                            <div class="section-title"><h4>Recently Added Shows</h4></div>
+                        </div>
+                        <div class="col-lg-4 col-md-4 col-sm-4">
+                            <div class="btn__all"><a asp-controller="Anime" asp-action="DanhSach" class="primary-btn">Xem tất cả <span class="arrow_right"></span></a></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        @foreach (var a in recentlyAdded)
+                        {
+                            <partial name="_AnimeCard" model="a" />
+                        }
+                        @if (!recentlyAdded.Any()) { <p class="text-muted px-3">Chưa có dữ liệu.</p> }
+                    </div>
+                </div>
+
+                <div class="live__product">
+                    <div class="row">
+                        <div class="col-lg-8 col-md-8 col-sm-8">
+                            <div class="section-title"><h4>Đang chiếu</h4></div>
+                        </div>
+                        <div class="col-lg-4 col-md-4 col-sm-4">
+                            <div class="btn__all"><a asp-controller="Anime" asp-action="DanhSach" class="primary-btn">Xem tất cả <span class="arrow_right"></span></a></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        @foreach (var a in liveAction)
+                        {
+                            <partial name="_AnimeCard" model="a" />
+                        }
+                        @if (!liveAction.Any()) { <p class="text-muted px-3">Chưa có anime đang chiếu.</p> }
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6 col-sm-8">
+                <div class="product__sidebar">
+                    <div class="product__sidebar__view">
+                        <div class="section-title"><h5>Top Views</h5></div>
+                        <div class="filter__gallery">
+                            @foreach (var a in topViews)
+                            {
+                                <a asp-controller="Anime" asp-action="ChiTiet" asp-route-id="@a.AnimeId" style="display:block">
+                                    <div class="product__sidebar__view__item set-bg" data-setbg="@(string.IsNullOrEmpty(a.Poster) ? "/template/img/sidebar/tv-1.jpg" : a.Poster)">
+                                        <div class="view"><i class="fa fa-eye"></i> @a.LuotXem</div>
+                                        <h5>@a.TenAnime</h5>
+                                    </div>
+                                </a>
+                            }
+                        </div>
+                    </div>
+                    <div class="product__sidebar__comment">
+                        <div class="section-title"><h5>Bình luận mới</h5></div>
+                        @foreach (var b in binhLuanMoi)
+                        {
+                            <a asp-controller="Anime" asp-action="ChiTiet" asp-route-id="@b.AnimeId" style="display:block; text-decoration:none">
+                                <div class="product__sidebar__comment__item">
+                                    <div class="product__sidebar__comment__item__pic">
+                                        <img src="@(string.IsNullOrEmpty(b.Anime.Poster) ? "/template/img/sidebar/comment-1.jpg" : b.Anime.Poster)" alt="">
+                                    </div>
+                                    <div class="product__sidebar__comment__item__text">
+                                        <h5>@b.Anime.TenAnime</h5>
+                                        <span>@b.NoiDung</span>
+                                    </div>
+                                </div>
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

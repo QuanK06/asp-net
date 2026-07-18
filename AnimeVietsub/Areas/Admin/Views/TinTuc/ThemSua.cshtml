@@ -1,0 +1,69 @@
+@model AnimeVietsub.Core.Models.TinTuc
+@{ ViewData["Title"] = Model.TinTucId == 0 ? "Thêm tin tức" : "Sửa tin tức"; ViewData["ActiveMenu"] = "TinTuc"; }
+
+<div class="card card-danger card-outline">
+    <div class="card-body">
+        <form asp-action="ThemSua" method="post" enctype="multipart/form-data">
+            <input type="hidden" asp-for="TinTucId" />
+            <div class="form-group">
+                <label>Tiêu đề</label>
+                <input asp-for="TieuDe" class="form-control" required />
+            </div>
+            <div class="form-group">
+                <label>Mô tả ngắn</label>
+                <input asp-for="MoTaNgan" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label>Ảnh đại diện</label>
+                @if (!string.IsNullOrEmpty(Model.AnhDaiDien))
+                {
+                    <img src="@Model.AnhDaiDien" style="width:150px" class="d-block mb-2 img-thumbnail" />
+                }
+                <div class="custom-file">
+                    <input type="file" name="fileAnhDaiDien" class="custom-file-input" id="fileAnhDaiDien" accept="image/*">
+                    <label class="custom-file-label" for="fileAnhDaiDien">Chọn ảnh...</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Nội dung</label>
+                <textarea id="noiDung" asp-for="NoiDung" style="height:300px"></textarea>
+            </div>
+            <div class="icheck-primary mb-3">
+                <input asp-for="AnHien" type="checkbox" checked>
+                <label for="AnHien">Hiển thị</label>
+            </div>
+            <button type="submit" class="btn btn-danger"><i class="fas fa-save"></i> Lưu</button>
+            <a asp-action="Index" class="btn btn-default">Hủy</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    $('.custom-file-input').on('change', function () {
+        $(this).siblings('.custom-file-label').text($(this).val().split('\\').pop() || 'Chọn ảnh...');
+    });
+
+    $(function () {
+        $('#noiDung').summernote({
+            height: 300,
+            callbacks: {
+                onImageUpload: function (files) {
+                    var data = new FormData();
+                    data.append('file', files[0]);
+                    $.ajax({
+                        url: '/Admin/TinTuc/UploadAnhSummernote',
+                        method: 'POST',
+                        data: data,
+                        contentType: false,
+                        processData: false,
+                        success: function (res) {
+                            $('#noiDung').summernote('insertImage', res.url);
+                        }
+                    });
+                }
+            }
+        });
+    });
+</script>
+}

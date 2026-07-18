@@ -1,0 +1,81 @@
+@{ ViewData["Title"] = "Thống kê"; ViewData["ActiveMenu"] = "TrangChu"; }
+
+<div class="row">
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-danger">
+            <div class="inner">
+                <h3>@ViewBag.TongAnime</h3>
+                <p>Anime</p>
+            </div>
+            <div class="icon"><i class="fas fa-clapperboard"></i></div>
+            <a asp-action="Index" asp-controller="AnimeQuanLy" class="small-box-footer">Xem chi tiết <i class="fas fa-arrow-circle-right"></i></a>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-warning">
+            <div class="inner">
+                <h3>@ViewBag.TongTap</h3>
+                <p>Tập phim</p>
+            </div>
+            <div class="icon"><i class="fas fa-film"></i></div>
+            <a asp-action="Index" asp-controller="AnimeQuanLy" class="small-box-footer">Xem chi tiết <i class="fas fa-arrow-circle-right"></i></a>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-info">
+            <div class="inner">
+                <h3>@ViewBag.TongUser</h3>
+                <p>Người dùng</p>
+            </div>
+            <div class="icon"><i class="fas fa-users"></i></div>
+            <a asp-action="Index" asp-controller="TaiKhoan" class="small-box-footer">Xem chi tiết <i class="fas fa-arrow-circle-right"></i></a>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-success">
+            <div class="inner">
+                <h3>@ViewBag.TongBinhLuan</h3>
+                <p>Bình luận</p>
+            </div>
+            <div class="icon"><i class="fas fa-comments"></i></div>
+            <a asp-action="Index" asp-controller="BinhLuan" class="small-box-footer">Xem chi tiết <i class="fas fa-arrow-circle-right"></i></a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card card-danger">
+            <div class="card-header"><h3 class="card-title">Top 5 Anime xem nhiều nhất</h3></div>
+            <div class="card-body"><canvas id="chartTopAnime" style="min-height:250px"></canvas></div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card card-primary">
+            <div class="card-header"><h3 class="card-title">Người dùng đăng ký theo tháng</h3></div>
+            <div class="card-body"><canvas id="chartUserTheoThang" style="min-height:250px"></canvas></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    new Chart(document.getElementById('chartTopAnime'), {
+        type: 'bar',
+        data: {
+            labels: @Html.Raw(Json.Serialize(ViewBag.NhanTopAnime)),
+            datasets: [{ label: 'Lượt xem', data: @Html.Raw(Json.Serialize(ViewBag.SoLieuTopAnime)), backgroundColor: '#dc3545' }]
+        },
+        options: { maintainAspectRatio: false }
+    });
+
+    new Chart(document.getElementById('chartUserTheoThang'), {
+        type: 'line',
+        data: {
+            labels: @Html.Raw(Json.Serialize(ViewBag.NhanUserTheoThang)),
+            datasets: [{ label: 'Người dùng mới', data: @Html.Raw(Json.Serialize(ViewBag.SoLieuUserTheoThang)), borderColor: '#007bff', fill: false, tension: .3 }]
+        },
+        options: { maintainAspectRatio: false }
+    });
+</script>
+}

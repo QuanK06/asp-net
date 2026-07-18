@@ -1,0 +1,137 @@
+@model List<AnimeVietsub.Core.Models.Anime>
+@using AnimeVietsub.Core.Models
+@{
+    ViewData["Title"] = "Danh sách Anime";
+    var theLoais = ViewBag.TheLoais as List<TheLoai> ?? new List<TheLoai>();
+    var topViews = ViewBag.TopViews as List<Anime> ?? new List<Anime>();
+    int tongSoTrang = ViewBag.TongSoTrang; int trangHienTai = ViewBag.TrangHienTai;
+    int? theLoaiIdHienTai = ViewBag.TheLoaiIdHienTai;
+    string tenTrang = ViewBag.TenTrang ?? "Danh sách Anime";
+}
+
+<div class="breadcrumb-option">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumb__links">
+                    <a asp-controller="Home" asp-action="Index"><i class="fa fa-home"></i> Trang chủ</a>
+                    <a asp-action="DanhSach">Danh sách Anime</a>
+                    <span>@tenTrang</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="product-page spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="product__page__content">
+                    <div class="product__page__title">
+                        <div class="row">
+                            <div class="col-lg-8 col-md-8 col-sm-6">
+                                <div class="section-title"><h4>@tenTrang</h4></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        @foreach (var a in Model)
+                        {
+                            <partial name="_AnimeCard" model="a" />
+                        }
+                        @if (!Model.Any()) { <p class="text-muted px-3">Chưa có anime nào.</p> }
+                    </div>
+
+                    @if (tongSoTrang > 1)
+                    {
+                        <div class="product__pagination">
+                            @for (int i = 1; i <= tongSoTrang; i++)
+                            {
+                                <a asp-action="DanhSach" asp-route-theLoaiId="@theLoaiIdHienTai" asp-route-trang="@i" class="@(i == trangHienTai ? "current-page" : "")">@i</a>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6 col-sm-8">
+                <div class="product__sidebar">
+                    <div class="product__sidebar__view">
+                        <div class="section-title"><h5>Lọc nâng cao</h5></div>
+                        <form method="get" asp-action="DanhSach">
+                            @if (theLoaiIdHienTai.HasValue)
+                            {
+                                <input type="hidden" name="theLoaiId" value="@theLoaiIdHienTai" />
+                            }
+                            <div class="form-group mb-2">
+                                <label class="text-light">Định dạng phát sóng</label>
+                                <select name="dinhDang" class="w-100">
+                                    <option value="">Tất cả</option>
+                                    <option value="TV Series" selected="@(ViewBag.DinhDangHienTai == "TV Series")">TV Series</option>
+                                    <option value="Movie" selected="@(ViewBag.DinhDangHienTai == "Movie")">Movie</option>
+                                    <option value="OVA" selected="@(ViewBag.DinhDangHienTai == "OVA")">OVA</option>
+                                    <option value="ONA" selected="@(ViewBag.DinhDangHienTai == "ONA")">ONA</option>
+                                    <option value="Special" selected="@(ViewBag.DinhDangHienTai == "Special")">Special</option>
+                                </select>
+                            </div>
+                            <div class="form-group mb-2">
+                                <label class="text-light">Phương thức dịch</label>
+                                <select name="phuongThucDich" class="w-100">
+                                    <option value="">Tất cả</option>
+                                    <option value="Vietsub" selected="@(ViewBag.PhuongThucDichHienTai == "Vietsub")">Vietsub</option>
+                                    <option value="Thuyết minh" selected="@(ViewBag.PhuongThucDichHienTai == "Thuyết minh")">Thuyết minh</option>
+                                    <option value="Lồng tiếng" selected="@(ViewBag.PhuongThucDichHienTai == "Lồng tiếng")">Lồng tiếng</option>
+                                    <option value="Vietsub + Thuyết minh" selected="@(ViewBag.PhuongThucDichHienTai == "Vietsub + Thuyết minh")">Vietsub + Thuyết minh</option>
+                                </select>
+                            </div>
+                            <div class="form-group mb-2">
+                                <label class="text-light">Trạng thái</label>
+                                <select name="trangThai" class="w-100">
+                                    <option value="">Tất cả</option>
+                                    <option value="Đang chiếu" selected="@(ViewBag.TrangThaiHienTai == "Đang chiếu")">Đang chiếu</option>
+                                    <option value="Hoàn thành" selected="@(ViewBag.TrangThaiHienTai == "Hoàn thành")">Hoàn thành</option>
+                                    <option value="Sắp chiếu" selected="@(ViewBag.TrangThaiHienTai == "Sắp chiếu")">Sắp chiếu</option>
+                                </select>
+                            </div>
+                            <div class="form-group mb-2">
+                                <label class="text-light">Năm phát hành</label>
+                                <select name="nam" class="w-100">
+                                    <option value="">Tất cả</option>
+                                    @foreach (var n in (List<int>)ViewBag.DanhSachNam)
+                                    {
+                                        <option value="@n" selected="@(ViewBag.NamHienTai == n)">@n</option>
+                                    }
+                                </select>
+                            </div>
+                            <button type="submit" class="primary-btn w-100 text-center" style="border:none">Áp dụng</button>
+                            <a asp-action="DanhSach" class="d-block text-center text-muted mt-2">Xóa lọc</a>
+                        </form>
+                    </div>
+                    <div class="product__sidebar__view">
+                        <div class="section-title"><h5>Thể loại</h5></div>
+                        <ul class="filter__controls" style="flex-wrap:wrap">
+                            <li class="@(theLoaiIdHienTai == null ? "active" : "")"><a asp-action="DanhSach">Tất cả</a></li>
+                            @foreach (var t in theLoais)
+                            {
+                                <li class="@(theLoaiIdHienTai == t.TheLoaiId ? "active" : "")"><a asp-action="DanhSach" asp-route-theLoaiId="@t.TheLoaiId">@t.TenTheLoai</a></li>
+                            }
+                        </ul>
+                    </div>
+                    <div class="product__sidebar__view">
+                        <div class="section-title"><h5>Top Views</h5></div>
+                        @foreach (var a in topViews)
+                        {
+                            <a asp-controller="Anime" asp-action="ChiTiet" asp-route-id="@a.AnimeId" style="display:block">
+                                <div class="product__sidebar__view__item set-bg" data-setbg="@(string.IsNullOrEmpty(a.Poster) ? "/template/img/sidebar/tv-1.jpg" : a.Poster)">
+                                    <div class="view"><i class="fa fa-eye"></i> @a.LuotXem</div>
+                                    <h5>@a.TenAnime</h5>
+                                </div>
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

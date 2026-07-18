@@ -1,0 +1,46 @@
+@model AnimeVietsub.Core.Models.ApplicationUser
+@{ ViewData["Title"] = "Hồ sơ của tôi"; }
+
+<div class="breadcrumb-option">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumb__links">
+                    <a asp-controller="Home" asp-action="Index"><i class="fa fa-home"></i> Trang chủ</a>
+                    <span>Hồ sơ của tôi</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="login spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="login__form">
+                    <h3>Hồ sơ của tôi</h3>
+                    @switch (Model.DanhHieu)
+                    {
+                        case "Fan cứng":
+                            <p><span class="badge badge-warning"><i class="fa fa-star"></i> Fan cứng</span></p>
+                            break;
+                        case "Boss":
+                            <p><span class="badge badge-danger"><i class="fa fa-star"></i> Boss</span></p>
+                            break;
+                        case "Otaku":
+                            <p><span class="badge badge-info"><i class="fa fa-star"></i> Otaku</span></p>
+                            break;
+                        case "Mod":
+                            <p><span class="badge badge-primary"><i class="fa fa-star"></i> Mod</span></p>
+                            break;
+                    }
+                    <p><span class="icon_profile"></span> @Model.HoTen</p>
+                    <p><span class="icon_mail"></span> @Model.Email</p>
+                    <p>Ngày tạo: @Model.NgayTao.ToString("dd/MM/yyyy")</p>
+                    <a asp-controller="TheoDoi" asp-action="Index" class="site-btn">Danh sách theo dõi</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>animevietsub-secrets</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Lab 02: Ket noi SQL Server - ban than Web project chi can EF Core runtime,
+         Tools/Design da nam ben AnimeVietsub.Database (noi chua DbContext + Migrations) -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.10" />
+    <!-- EF Core Tools yeu cau chinh Startup Project (AnimeVietsub) cung phai co goi Design nay,
+         du DbContext/Migrations nam ben AnimeVietsub.Database -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.10">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Lab 01-02: Web project khong con truy cap CSDL truc tiep,
+         ma thong qua AnimeVietsub.Database (project nay lai tham chieu AnimeVietsub.Core) -->
+    <ProjectReference Include="..\AnimeVietsub.Database\AnimeVietsub.Database.csproj" />
+  </ItemGroup>
+
+</Project>

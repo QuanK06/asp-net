@@ -1,0 +1,25 @@
+@model AnimeVietsub.Core.Models.Anime
+@{ var soTap = Model.DanhSachTap?.Count() ?? 0; }
+<div class="col-lg-4 col-md-6 col-sm-6">
+    <div class="product__item">
+        <div class="product__item__pic set-bg" data-setbg="@(string.IsNullOrEmpty(Model.Poster) ? "/template/img/trending/trend-1.jpg" : Model.Poster)" style="position:relative">
+            <a asp-controller="Anime" asp-action="ChiTiet" asp-route-id="@Model.AnimeId" style="position:absolute; inset:0; z-index:1"></a>
+            <div class="ep">Tập @soTap</div>
+            <div class="view"><i class="fa fa-eye"></i> @Model.LuotXem</div>
+            @if (soTap > 0)
+            {
+                <a asp-controller="Anime" asp-action="Xem" asp-route-tapPhimId="@Model.DanhSachTap.First().TapPhimId"
+                   style="position:absolute; z-index:2; top:50%; left:50%; transform:translate(-50%,-50%); width:44px; height:44px; border-radius:50%; background:rgba(220,53,69,.88); display:flex; align-items:center; justify-content:center; color:#fff">
+                    <i class="fa fa-play" style="margin-left:3px"></i>
+                </a>
+            }
+        </div>
+        <div class="product__item__text">
+            <ul>
+                <li>@Model.TrangThai</li>
+                <li>@Model.NamPhatHanh</li>
+            </ul>
+            <h5><a asp-controller="Anime" asp-action="ChiTiet" asp-route-id="@Model.AnimeId">@Model.TenAnime</a></h5>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,118 @@
+@{ ViewData["Title"] = "Quản lý Thể loại"; ViewData["ActiveMenu"] = "TheLoai"; }
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="card-title">Danh sách thể loại</h3>
+        <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#modalTheLoai" onclick="moTaoMoi()">
+            <i class="fas fa-plus"></i> Thêm thể loại
+        </button>
+    </div>
+    <div class="card-body">
+        <table id="bangTheLoai" class="table table-bordered table-striped w-100">
+            <thead>
+                <tr>
+                    <th>Mã</th>
+                    <th>Tên thể loại</th>
+                    <th>Slug URL</th>
+                    <th>Hiển thị</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+<!-- Modal them/sua -->
+<div class="modal fade" id="modalTheLoai">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTieuDe">Thêm thể loại</h5>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="theLoaiId" value="0" />
+                <div class="form-group">
+                    <label>Tên thể loại</label>
+                    <input type="text" id="tenTheLoai" class="form-control" />
+                </div>
+                <div class="icheck-primary">
+                    <input type="checkbox" id="hienThi" checked>
+                    <label for="hienThi">Hiển thị ngoài trang chủ</label>
+                </div>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button class="btn btn-default" data-dismiss="modal">Đóng</button>
+                <button class="btn btn-danger" onclick="luuTheLoai()">Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    var bang;
+    $(function () {
+        bang = $('#bangTheLoai').DataTable({
+            ajax: { url: '/Admin/TheLoai/LayDanhSach', dataSrc: 'data' },
+            responsive: true,
+            columns: [
+                { data: 'theLoaiId' },
+                { data: 'tenTheLoai' },
+                { data: 'slugUrl' },
+                { data: 'hienThi', render: d => d ? '<span class="badge badge-success">Có</span>' : '<span class="badge badge-secondary">Ẩn</span>' },
+                {
+                    data: null, orderable: false,
+                    render: function (row) {
+                        return `<button class="btn btn-sm btn-warning" onclick="moSua(${row.theLoaiId})"><i class="fas fa-pen"></i></button>
+                                <button class="btn btn-sm btn-danger" onclick="xoaTheLoai(${row.theLoaiId})"><i class="fas fa-trash"></i></button>`;
+                    }
+                }
+            ],
+            language: { url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/vi.json' }
+        });
+    });
+
+    function moTaoMoi() {
+        $('#modalTieuDe').text('Thêm thể loại');
+        $('#theLoaiId').val(0);
+        $('#tenTheLoai').val('');
+        $('#hienThi').prop('checked', true);
+    }
+
+    function moSua(id) {
+        $.get('/Admin/TheLoai/ChiTiet', { id: id }, function (res) {
+            if (res.success) {
+                $('#modalTieuDe').text('Sửa thể loại');
+                $('#theLoaiId').val(res.data.theLoaiId);
+                $('#tenTheLoai').val(res.data.tenTheLoai);
+                $('#hienThi').prop('checked', res.data.hienThi);
+                $('#modalTheLoai').modal('show');
+            }
+        });
+    }
+
+    function luuTheLoai() {
+        $.post('/Admin/TheLoai/LuuTheLoai', {
+            theLoaiId: $('#theLoaiId').val(),
+            tenTheLoai: $('#tenTheLoai').val(),
+            hienThi: $('#hienThi').is(':checked')
+        }, function (res) {
+            if (res.success) {
+                $('#modalTheLoai').modal('hide');
+                bang.ajax.reload();
+            } else {
+                alert(res.message);
+            }
+        });
+    }
+
+    function xoaTheLoai(id) {
+        if (!confirm('Xóa thể loại này?')) return;
+        $.post('/Admin/TheLoai/Xoa', { id: id }, function (res) {
+            if (res.success) bang.ajax.reload();
+            else alert(res.message);
+        });
+    }
+</script>
+}

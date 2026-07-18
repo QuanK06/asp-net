@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="AnimeVietsub">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>@ViewData["Title"] - AnimeVietsub</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Mulish:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="~/template/css/bootstrap.min.css" type="text/css">
+    <link rel="stylesheet" href="~/template/css/font-awesome.min.css" type="text/css">
+    <link rel="stylesheet" href="~/template/css/elegant-icons.css" type="text/css">
+    <link rel="stylesheet" href="~/template/css/plyr.css" type="text/css">
+    <link rel="stylesheet" href="~/template/css/nice-select.css" type="text/css">
+    <link rel="stylesheet" href="~/template/css/owl.carousel.min.css" type="text/css">
+    <link rel="stylesheet" href="~/template/css/slicknav.min.css" type="text/css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="~/template/css/style.css" type="text/css">
+</head>
+
+<body>
+    <div id="preloder">
+        <div class="loader"></div>
+    </div>
+
+    <header class="header">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-2">
+                    <div class="header__logo">
+                        <a asp-controller="Home" asp-action="Index">
+                            <img src="~/template/img/logo.png" alt="AnimeVietsub">
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-8">
+                    <div class="header__nav">
+                        <nav class="header__menu mobile-menu">
+                            <ul>
+                                <li class="active"><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+                                <li><a asp-controller="Anime" asp-action="DanhSach">Thể loại <span class="arrow_carrot-down"></span></a>
+                                    <ul class="dropdown">
+                                        <li><a asp-controller="TheLoai" asp-action="Index">Tất cả thể loại</a></li>
+                                        <li><a asp-controller="Anime" asp-action="DanhSach">Danh sách Anime</a></li>
+                                        @if (User.Identity.IsAuthenticated)
+                                        {
+                                            <li><a asp-controller="TheoDoi" asp-action="Index">Theo dõi của tôi</a></li>
+                                        }
+                                        else
+                                        {
+                                            <li><a asp-controller="TaiKhoan" asp-action="DangKy">Đăng ký</a></li>
+                                            <li><a asp-controller="TaiKhoan" asp-action="DangNhap">Đăng nhập</a></li>
+                                        }
+                                    </ul>
+                                </li>
+                                <li><a asp-controller="TinTuc" asp-action="Index">Tin tức</a></li>
+                                <li><a asp-controller="GopY" asp-action="Index"><i class="bi bi-chat-square-heart"></i> Góp ý</a></li>
+                                <li><a asp-controller="Home" asp-action="Donate"><i class="bi bi-heart-fill" style="color:#ff3d6e"></i> Donate</a></li>
+                                <li><a asp-controller="Home" asp-action="LienHe">Liên hệ</a></li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+                <div class="col-lg-2">
+                    <div class="header__right">
+                        <a href="#" class="search-switch"><span class="icon_search"></span></a>
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <a asp-controller="TaiKhoan" asp-action="HoSo"><span class="icon_profile"></span></a>
+                        }
+                        else
+                        {
+                            <a asp-controller="TaiKhoan" asp-action="DangNhap"><span class="icon_profile"></span></a>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div id="mobile-menu-wrap"></div>
+        </div>
+    </header>
+
+    @RenderBody()
+
+    <footer class="footer">
+        <div class="page-up">
+            <a href="#" id="scrollToTopButton"><span class="arrow_carrot-up"></span></a>
+        </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3">
+                    <div class="footer__logo">
+                        <a asp-controller="Home" asp-action="Index"><img src="~/template/img/logo.png" alt="AnimeVietsub"></a>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="footer__nav">
+                        <ul>
+                            <li class="active"><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+                            <li><a asp-controller="TheLoai" asp-action="Index">Thể loại</a></li>
+                            <li><a asp-controller="TinTuc" asp-action="Index">Tin tức</a></li>
+                            <li><a asp-controller="GopY" asp-action="Index">Góp ý</a></li>
+                            <li><a asp-controller="Home" asp-action="Donate">Donate</a></li>
+                            <li><a asp-controller="Home" asp-action="LienHe">Liên hệ</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <p>Copyright &copy;@DateTime.Now.Year All rights reserved | Đồ án ASP.NET Core MVC - Giao diện dựa trên template Anime của Colorlib</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <div class="search-model">
+        <div class="h-100 d-flex align-items-center justify-content-center">
+            <div class="search-close-switch"><i class="icon_close"></i></div>
+            <form class="search-model-form" asp-controller="Anime" asp-action="TimKiem" method="get">
+                <input type="text" name="tuKhoa" id="search-input" placeholder="Tìm anime.....">
+            </form>
+        </div>
+    </div>
+
+    <script src="~/template/js/jquery-3.3.1.min.js"></script>
+    <script src="~/template/js/bootstrap.min.js"></script>
+    <script src="~/template/js/player.js"></script>
+    <script src="~/template/js/jquery.nice-select.min.js"></script>
+    <script src="~/template/js/mixitup.min.js"></script>
+    <script src="~/template/js/jquery.slicknav.js"></script>
+    <script src="~/template/js/owl.carousel.min.js"></script>
+    <script src="~/template/js/main.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+
+</html>

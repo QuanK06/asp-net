@@ -1,0 +1,51 @@
+@using AnimeVietsub.Core.Models
+@{
+    ViewData["Title"] = "Theo dõi của tôi";
+    var dangTheoDoi = ViewBag.DangTheoDoi as List<TheoDoi> ?? new List<TheoDoi>();
+    var xemTiep = ViewBag.XemTiep as List<LichSuXem> ?? new List<LichSuXem>();
+}
+
+<div class="breadcrumb-option">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumb__links">
+                    <a asp-controller="Home" asp-action="Index"><i class="fa fa-home"></i> Trang chủ</a>
+                    <span>Theo dõi của tôi</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="product-page spad">
+    <div class="container">
+        <div class="product__page__title">
+            <div class="section-title"><h4>Xem tiếp</h4></div>
+        </div>
+        <div class="row">
+            @foreach (var l in xemTiep)
+            {
+                <div class="col-lg-2 col-md-3 col-sm-4 col-6">
+                    <a asp-controller="Anime" asp-action="Xem" asp-route-tapPhimId="@l.TapPhimId">
+                        <div class="product__sidebar__view__item set-bg" data-setbg="@(string.IsNullOrEmpty(l.TapPhim.Thumbnail) ? "/template/img/sidebar/tv-1.jpg" : l.TapPhim.Thumbnail)">
+                            <h5>@l.TapPhim.Anime.TenAnime - Tập @l.TapPhim.SoTap</h5>
+                        </div>
+                    </a>
+                </div>
+            }
+            @if (!xemTiep.Any()) { <p class="text-muted px-3">Chưa có tập nào đang xem dở.</p> }
+        </div>
+
+        <div class="product__page__title mt-5">
+            <div class="section-title"><h4>Đang theo dõi</h4></div>
+        </div>
+        <div class="row">
+            @foreach (var t in dangTheoDoi)
+            {
+                <partial name="_AnimeCard" model="t.Anime" />
+            }
+            @if (!dangTheoDoi.Any()) { <p class="text-muted px-3">Bạn chưa theo dõi anime nào.</p> }
+        </div>
+    </div>
+</section>

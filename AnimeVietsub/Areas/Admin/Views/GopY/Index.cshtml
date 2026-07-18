@@ -1,0 +1,43 @@
+@model List<AnimeVietsub.Core.Models.GopY>
+@{ ViewData["Title"] = "Góp ý từ người dùng"; ViewData["ActiveMenu"] = "GopY"; }
+
+<div class="card">
+    <div class="card-header"><h3 class="card-title">Danh sách góp ý</h3></div>
+    <div class="card-body">
+        <table class="table table-bordered table-striped">
+            <thead><tr><th>Họ tên</th><th>Email</th><th>Nội dung</th><th>Ngày gửi</th><th>Trạng thái</th><th>Hành động</th></tr></thead>
+            <tbody>
+                @foreach (var g in Model)
+                {
+                    <tr>
+                        <td>@g.HoTen</td>
+                        <td>@g.Email</td>
+                        <td>@g.NoiDung</td>
+                        <td>@g.NgayGui.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>@(g.DaXuLy ? "Đã xử lý" : "Chưa xử lý")</td>
+                        <td>
+                            <button class="btn btn-sm btn-warning" onclick="toggleXuLy(@g.GopYId)">@(g.DaXuLy ? "Bỏ đánh dấu" : "Đánh dấu đã xử lý")</button>
+                            <button class="btn btn-sm btn-danger" onclick="xoaGopY(@g.GopYId)">Xóa</button>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="6" class="text-center text-muted">Chưa có góp ý nào.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function toggleXuLy(id) {
+        $.post('/Admin/GopY/ToggleXuLy', { id: id }, function (res) { if (res.success) location.reload(); });
+    }
+    function xoaGopY(id) {
+        if (!confirm('Xóa góp ý này?')) return;
+        $.post('/Admin/GopY/Xoa', { id: id }, function (res) { if (res.success) location.reload(); });
+    }
+</script>
+}

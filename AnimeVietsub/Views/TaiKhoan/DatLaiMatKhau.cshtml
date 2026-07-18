@@ -1,0 +1,16 @@
+@{ ViewData["Title"] = "Đặt lại mật khẩu"; }
+<div class="container py-5" style="max-width:420px">
+    <div class="login__form">
+        <h3 class="mb-3">Đặt lại mật khẩu</h3>
+        <div asp-validation-summary="All" class="text-danger"></div>
+        <form method="post" asp-action="DatLaiMatKhau">
+            <input type="hidden" name="email" value="@ViewBag.Email" />
+            <input type="hidden" name="token" value="@ViewBag.Token" />
+            <div class="input__item">
+                <input type="password" name="matKhauMoi" placeholder="Mật khẩu mới" required minlength="6">
+                <span class="icon_lock"></span>
+            </div>
+            <button type="submit" class="site-btn w-100">Đặt lại mật khẩu</button>
+        </form>
+    </div>
+</div>

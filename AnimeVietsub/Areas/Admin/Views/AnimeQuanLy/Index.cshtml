@@ -1,0 +1,51 @@
+@{ ViewData["Title"] = "Quản lý Anime"; ViewData["ActiveMenu"] = "AnimeQuanLy"; }
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="card-title">Danh sách Anime</h3>
+        <a class="btn btn-danger btn-sm" asp-action="ThemSua"><i class="fas fa-plus"></i> Thêm Anime</a>
+    </div>
+    <div class="card-body">
+        <table id="bangAnime" class="table table-bordered table-striped w-100">
+            <thead>
+                <tr><th>Mã</th><th>Poster</th><th>Tên Anime</th><th>Trạng thái</th><th>Định dạng</th><th>Mùa</th><th>Số tập</th><th>Hiển thị</th><th>Hành động</th></tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    $(function () {
+        $('#bangAnime').DataTable({
+            ajax: { url: '/Admin/AnimeQuanLy/LayDanhSach', dataSrc: 'data' },
+            responsive: true,
+            columns: [
+                { data: 'animeId' },
+                { data: 'poster', render: p => p ? `<img src="${p}" style="width:40px;height:56px;object-fit:cover" class="img-thumbnail" />` : '' },
+                { data: 'tenAnime' },
+                { data: 'trangThai' },
+                { data: 'dinhDangPhatSong' },
+                { data: 'soMua', render: s => 'Mùa ' + s },
+                { data: 'soTap' },
+                { data: 'anHien', render: d => d ? '<span class="badge badge-success">Có</span>' : '<span class="badge badge-secondary">Ẩn</span>' },
+                {
+                    data: null, orderable: false,
+                    render: row => `
+                        <a class="btn btn-sm btn-primary" href="/Admin/AnimeQuanLy/QuanLyTap?animeId=${row.animeId}"><i class="fas fa-film"></i> Tập</a>
+                        <a class="btn btn-sm btn-warning" href="/Admin/AnimeQuanLy/ThemSua/${row.animeId}"><i class="fas fa-pen"></i></a>
+                        <button class="btn btn-sm btn-danger" onclick="xoaAnime(${row.animeId})"><i class="fas fa-trash"></i></button>`
+                }
+            ],
+            language: { url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/vi.json' }
+        });
+    });
+
+    function xoaAnime(id) {
+        if (!confirm('Xóa anime này? (sẽ xóa luôn tất cả các tập)')) return;
+        $.post('/Admin/AnimeQuanLy/Xoa', { id: id }, function (res) {
+            if (res.success) location.reload();
+        });
+    }
+</script>
+}

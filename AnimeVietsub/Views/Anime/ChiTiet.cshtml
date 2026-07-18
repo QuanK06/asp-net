@@ -1,0 +1,229 @@
+@model AnimeVietsub.Core.Models.Anime
+@using AnimeVietsub.Core.Models
+@{
+    ViewData["Title"] = Model.TenAnime;
+    var coTheThich = ViewBag.CoTheThich as List<Anime> ?? new List<Anime>();
+}
+
+<div class="breadcrumb-option">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumb__links">
+                    <a asp-controller="Home" asp-action="Index"><i class="fa fa-home"></i> Trang chủ</a>
+                    <a asp-controller="Anime" asp-action="DanhSach">Danh sách Anime</a>
+                    <span>@Model.TenAnime</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="anime-details spad">
+    <div class="container">
+        <div class="anime__details__content">
+            <div class="row">
+                <div class="col-lg-3">
+                    <div class="anime__details__pic set-bg" data-setbg="@(string.IsNullOrEmpty(Model.Poster) ? "/template/img/anime/details-pic.jpg" : Model.Poster)" style="position:relative">
+                        <div class="comment"><i class="fa fa-comments"></i> @Model.DanhSachBinhLuan.Count()</div>
+                        <div class="view"><i class="fa fa-eye"></i> @Model.LuotXem</div>
+                        @if (Model.DanhSachTap.Any())
+                        {
+                            <a asp-controller="Anime" asp-action="Xem" asp-route-tapPhimId="@Model.DanhSachTap.First().TapPhimId"
+                               style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:64px; height:64px; border-radius:50%; background:rgba(220,53,69,.9); display:flex; align-items:center; justify-content:center; color:#fff; font-size:22px">
+                                <i class="fa fa-play" style="margin-left:4px"></i>
+                            </a>
+                        }
+                    </div>
+                </div>
+                <div class="col-lg-9">
+                    <div class="anime__details__text">
+                        <div class="anime__details__title">
+                            <h3>@Model.TenAnime</h3>
+                            <span>@Model.TenKhac</span>
+                        </div>
+                        <div class="anime__details__rating">
+                            <div class="rating">
+                                @{ int saoDay = (int)Math.Round(Model.DiemDanhGia); }
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    <a href="#"><i class="fa @(i <= saoDay ? "fa-star" : "fa-star-o")"></i></a>
+                                }
+                            </div>
+                            <span>@Model.DiemDanhGia.ToString("0.0") / 5</span>
+                        </div>
+                        <p>@Model.MoTa</p>
+
+                        <!-- Tabs kieu AnimeVietsub: Thong tin phim / Trailer / Nhan vat / Hinh anh -->
+                        <ul class="nav nav-tabs" role="tablist" style="border-bottom:1px solid rgba(255,255,255,.1)">
+                            <li class="nav-item">
+                                <a class="nav-link active" data-toggle="tab" href="#tabThongTin" style="color:#fff">
+                                    <i class="fa fa-info-circle"></i> Thông tin phim
+                                </a>
+                            </li>
+                            @if (!string.IsNullOrEmpty(Model.TrailerUrl))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" data-toggle="tab" href="#tabTrailer" style="color:#fff">
+                                        <i class="fa fa-film"></i> Trailer
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                        <div class="tab-content pt-3">
+                            <div class="tab-pane fade show active" id="tabThongTin">
+                                <div class="anime__details__widget">
+                                    <div class="row">
+                                        <div class="col-lg-6 col-md-6">
+                                            <ul>
+                                                <li><span>Loại:</span> @Model.DinhDangPhatSong</li>
+                                                <li><span>Trạng thái:</span> @Model.TrangThai</li>
+                                                <li><span>Thể loại:</span> @string.Join(", ", Model.DanhSachTheLoai.Select(t => t.TheLoai.TenTheLoai))</li>
+                                                <li><span>Đạo diễn:</span> @Model.DaoDien</li>
+                                                <li><span>Quốc gia:</span> @Model.QuocGia</li>
+                                                <li><span>Số người theo dõi:</span> @ViewBag.SoNguoiTheoDoi</li>
+                                            </ul>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6">
+                                            <ul>
+                                                <li><span>Thời lượng:</span> @(Model.ThoiLuongPhut.HasValue ? Model.ThoiLuongPhut + " phút" : "Đang cập nhật")</li>
+                                                <li><span>Chất lượng:</span> <span class="badge badge-danger">@Model.ChatLuong</span></li>
+                                                <li><span>Rating:</span> <span class="badge badge-danger">@Model.Rating</span></li>
+                                                <li><span>Ngôn ngữ:</span> @Model.PhuongThucDich</li>
+                                                <li><span>Studio:</span> @Model.Studio</li>
+                                                <li><span>Season:</span> Mùa @Model.SoMua &ndash; @Model.NamPhatHanh</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @if (!string.IsNullOrEmpty(Model.TrailerUrl))
+                            {
+                                <div class="tab-pane fade" id="tabTrailer">
+                                    <div class="embed-responsive embed-responsive-16by9">
+                                        <iframe class="embed-responsive-item" src="@Model.TrailerUrl" allowfullscreen></iframe>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <div class="anime__details__btn">
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                <a href="#" id="btnTheoDoi" class="follow-btn" data-animeid="@Model.AnimeId"><i class="fa fa-heart-o"></i> Theo dõi</a>
+                            }
+                            else
+                            {
+                                <a asp-controller="TaiKhoan" asp-action="DangNhap" class="follow-btn"><i class="fa fa-heart-o"></i> Đăng nhập để theo dõi</a>
+                            }
+                            @if (Model.DanhSachTap.Any())
+                            {
+                                <a asp-controller="Anime" asp-action="Xem" asp-route-tapPhimId="@Model.DanhSachTap.First().TapPhimId" class="watch-btn"><span>Xem ngay</span> <i class="fa fa-angle-right"></i></a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @if (Model.DanhSachTap.Any())
+            {
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="anime__details__episodes">
+                            <div class="section-title"><h5>Danh sách tập</h5></div>
+                            @foreach (var tap in Model.DanhSachTap)
+                            {
+                                <a asp-controller="Anime" asp-action="Xem" asp-route-tapPhimId="@tap.TapPhimId">Tập @tap.SoTap</a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <div class="row">
+                <div class="col-lg-8 col-md-8">
+                    <div class="anime__details__review">
+                        <div class="section-title"><h5>Bình luận</h5></div>
+                        <div id="binhLuanBox">
+                            @foreach (var bl in Model.DanhSachBinhLuan.OrderByDescending(b => b.NgayBinhLuan))
+                            {
+                                <div class="anime__review__item">
+                                    <div class="anime__review__item__pic">
+                                        <img src="@(string.IsNullOrEmpty(bl.NguoiDung.AnhDaiDien) ? "/template/img/anime/review-1.jpg" : bl.NguoiDung.AnhDaiDien)" alt="">
+                                    </div>
+                                    <div class="anime__review__item__text">
+                                        <h6>@(string.IsNullOrEmpty(bl.NguoiDung.HoTen) ? bl.NguoiDung.UserName : bl.NguoiDung.HoTen) - <span>@bl.NgayBinhLuan.ToString("dd/MM/yyyy HH:mm")</span></h6>
+                                        <p>@bl.NoiDung</p>
+                                    </div>
+                                </div>
+                            }
+                            @if (!Model.DanhSachBinhLuan.Any())
+                            {
+                                <p class="text-muted">Chưa có bình luận nào, hãy là người đầu tiên!</p>
+                            }
+                        </div>
+                    </div>
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <div class="anime__details__form">
+                            <div class="section-title"><h5>Bình luận của bạn</h5></div>
+                            <form id="formBinhLuan">
+                                <textarea id="noiDungBinhLuan" placeholder="Viết bình luận..."></textarea>
+                                <button type="button" id="btnGuiBinhLuan" data-animeid="@Model.AnimeId"><i class="fa fa-location-arrow"></i> Gửi</button>
+                            </form>
+                        </div>
+                    }
+                </div>
+                <div class="col-lg-4 col-md-4">
+                    <div class="anime__details__sidebar">
+                        <div class="section-title"><h5>Có thể bạn thích...</h5></div>
+                        @foreach (var a in coTheThich)
+                        {
+                            <a asp-controller="Anime" asp-action="ChiTiet" asp-route-id="@a.AnimeId" style="display:block">
+                                <div class="product__sidebar__view__item set-bg" data-setbg="@(string.IsNullOrEmpty(a.Poster) ? "/template/img/sidebar/tv-1.jpg" : a.Poster)">
+                                    <div class="view"><i class="fa fa-eye"></i> @a.LuotXem</div>
+                                    <h5>@a.TenAnime</h5>
+                                </div>
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+<script>
+    $("#btnTheoDoi").click(function (e) {
+        e.preventDefault();
+        var btn = $(this);
+        $.post('/TheoDoi/Toggle', { animeId: btn.data('animeid') }, function (res) {
+            if (res.success) {
+                btn.html(res.dangTheoDoi
+                    ? '<i class="fa fa-heart"></i> Đang theo dõi'
+                    : '<i class="fa fa-heart-o"></i> Theo dõi');
+            }
+        });
+    });
+
+    $("#btnGuiBinhLuan").click(function () {
+        var btn = $(this);
+        var noiDung = $("#noiDungBinhLuan").val();
+        if (!noiDung.trim()) return;
+        $.post('/BinhLuan/Them', { animeId: btn.data('animeid'), noiDung: noiDung }, function (res) {
+            if (res.success) {
+                $("#binhLuanBox").prepend(
+                    '<div class="anime__review__item">' +
+                    '<div class="anime__review__item__pic"><img src="/template/img/anime/review-1.jpg" alt=""></div>' +
+                    '<div class="anime__review__item__text"><h6>' + res.hoTen + ' - <span>' + res.ngay + '</span></h6>' +
+                    '<p>' + res.noiDung + '</p></div></div>'
+                );
+                $("#noiDungBinhLuan").val('');
+            } else {
+                alert(res.message);
+            }
+        });
+    });
+</script>
+}

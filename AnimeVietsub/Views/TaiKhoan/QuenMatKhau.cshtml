@@ -1,0 +1,32 @@
+@{ ViewData["Title"] = "Quên mật khẩu"; }
+<div class="container py-5" style="max-width:420px">
+    <div class="login__form">
+        <h3 class="mb-3">Quên mật khẩu</h3>
+
+        @if (ViewBag.DaGuiThanhCong == true)
+        {
+            <div class="alert alert-success">
+                Nếu email này đã đăng ký tài khoản, mình đã gửi link đặt lại mật khẩu qua email đó rồi.
+                Vào hộp thư (kể cả mục Spam) để lấy link nhé.
+            </div>
+            <a asp-action="DangNhap" class="site-btn">Về trang đăng nhập</a>
+        }
+        else
+        {
+            @if (ViewBag.LoiGuiMail != null)
+            {
+                <div class="alert alert-danger">@ViewBag.LoiGuiMail</div>
+            }
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <p class="text-muted">Nhập email đã đăng ký, mình sẽ gửi link đặt lại mật khẩu.</p>
+            <form method="post" asp-action="QuenMatKhau">
+                <div class="input__item">
+                    <input type="email" name="email" placeholder="Email" required>
+                    <span class="icon_mail"></span>
+                </div>
+                <button type="submit" class="site-btn w-100">Gửi link đặt lại mật khẩu</button>
+            </form>
+            <p class="mt-3 text-muted"><a asp-action="DangNhap">Quay lại đăng nhập</a></p>
+        }
+    </div>
+</div>

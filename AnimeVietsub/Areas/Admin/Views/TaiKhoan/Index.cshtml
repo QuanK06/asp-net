@@ -1,0 +1,88 @@
+@model List<AnimeVietsub.Core.Models.ApplicationUser>
+@{ ViewData["Title"] = "Quản lý người dùng"; ViewData["ActiveMenu"] = "TaiKhoan"; }
+
+<div class="card">
+    <div class="card-header"><h3 class="card-title">Danh sách người dùng</h3></div>
+    <div class="card-body">
+        <table class="table table-bordered table-striped">
+            <thead><tr><th>Họ tên</th><th>Email</th><th>Ngày tạo</th><th>Trạng thái</th><th>Danh hiệu</th><th>Hành động</th></tr></thead>
+            <tbody>
+                @foreach (var u in Model)
+                {
+                    <tr id="row-@u.Id">
+                        <td>@u.HoTen</td>
+                        <td>@u.Email</td>
+                        <td>@u.NgayTao.ToString("dd/MM/yyyy")</td>
+                        <td id="trangthai-@u.Id">
+                            @if (u.BiKhoa)
+                            {
+                                <span class="badge badge-danger">Đã khóa</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-success">Hoạt động</span>
+                            }
+                        </td>
+                        <td id="danhhieu-@u.Id">
+                            @switch (u.DanhHieu)
+                            {
+                                case "Fan cứng":
+                                    <span class="badge badge-warning"><i class="fas fa-star"></i> Fan cứng</span>
+                                    break;
+                                case "Boss":
+                                    <span class="badge badge-danger"><i class="fas fa-crown"></i> Boss</span>
+                                    break;
+                                case "Otaku":
+                                    <span class="badge badge-info"><i class="fas fa-glasses"></i> Otaku</span>
+                                    break;
+                                case "Mod":
+                                    <span class="badge badge-primary"><i class="fas fa-shield-alt"></i> Mod</span>
+                                    break;
+                                default:
+                                    <span class="badge badge-secondary">Thường</span>
+                                    break;
+                            }
+                        </td>
+                        <td>
+                            <button class="btn btn-sm @(u.BiKhoa ? "btn-success" : "btn-danger")" onclick="toggleKhoa('@u.Id')">
+                                @(u.BiKhoa ? "Mở khóa" : "Khóa")
+                            </button>
+                            <select class="d-inline-block w-auto form-control form-control-sm" style="display:inline-block" onchange="ganDanhHieu('@u.Id', this.value)">
+                                <option value="" selected="@(string.IsNullOrEmpty(u.DanhHieu))">-- Thường --</option>
+                                <option value="Fan cứng" selected="@(u.DanhHieu == "Fan cứng")">Fan cứng</option>
+                                <option value="Boss" selected="@(u.DanhHieu == "Boss")">Boss</option>
+                                <option value="Otaku" selected="@(u.DanhHieu == "Otaku")">Otaku</option>
+                                <option value="Mod" selected="@(u.DanhHieu == "Mod")">Mod</option>
+                            </select>
+                            <button class="btn btn-sm btn-outline-danger" onclick="xoaUser('@u.Id', '@u.Email')" title="Xóa người dùng">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function toggleKhoa(id) {
+        $.post('/Admin/TaiKhoan/ToggleKhoa', { id: id }, function (res) {
+            if (res.success) location.reload();
+        });
+    }
+    function ganDanhHieu(id, danhHieu) {
+        $.post('/Admin/TaiKhoan/GanDanhHieu', { id: id, danhHieu: danhHieu }, function (res) {
+            if (res.success) location.reload();
+        });
+    }
+    function xoaUser(id, email) {
+        if (!confirm('Xóa tài khoản "' + email + '"? Toàn bộ bình luận, theo dõi, lịch sử xem của người này sẽ bị xóa theo. Không thể hoàn tác!')) return;
+        $.post('/Admin/TaiKhoan/Xoa', { id: id }, function (res) {
+            if (res.success) location.reload();
+            else alert(res.message);
+        });
+    }
+</script>
+}

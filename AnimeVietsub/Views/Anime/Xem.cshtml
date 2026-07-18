@@ -1,0 +1,220 @@
+@model AnimeVietsub.Core.Models.TapPhim
+@using AnimeVietsub.Core.Models
+@{
+    ViewData["Title"] = $"{Model.Anime.TenAnime} - Tập {Model.SoTap}";
+}
+
+<div class="breadcrumb-option">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumb__links">
+                    <a asp-controller="Home" asp-action="Index"><i class="fa fa-home"></i> Trang chủ</a>
+                    <a asp-controller="Anime" asp-action="ChiTiet" asp-route-id="@Model.Anime.AnimeId">@Model.Anime.TenAnime</a>
+                    <span>Tập @Model.SoTap</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="anime-details spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="anime__video__player">
+                    @if (Model.LoaiNguonVideo == "Embed")
+                    {
+                        <div class="embed-responsive embed-responsive-16by9">
+                            <iframe id="playerEmbed" class="embed-responsive-item" src="@Model.DuongDanVideo" allowfullscreen></iframe>
+                        </div>
+                    }
+                    else
+                    {
+                        <video id="player" playsinline controls data-poster="@(string.IsNullOrEmpty(Model.Thumbnail) ? "" : Model.Thumbnail)">
+                            <source src="@Model.DuongDanVideo" type="video/mp4" />
+                        </video>
+                    }
+                </div>
+
+                <!-- Thanh dieu khien duoi player, kieu AnimeVietsub -->
+                <div class="d-flex flex-wrap justify-content-between align-items-center py-2 px-3 mb-3" style="background:#1c1c22; border-radius:0 0 6px 6px">
+                    <div class="d-flex flex-wrap">
+                        @{ var tapTiepTheo = ViewBag.TapTiepTheo as TapPhim; }
+                        @if (tapTiepTheo != null)
+                        {
+                            <a asp-controller="Anime" asp-action="Xem" asp-route-tapPhimId="@tapTiepTheo.TapPhimId" class="text-light mr-3"><i class="fa fa-step-forward"></i> Tập tiếp</a>
+                        }
+                        <a href="#binhLuanBox" class="text-light mr-3"><i class="fa fa-comments"></i> Bình luận</a>
+                        <a href="#" id="btnTatDen" class="text-light mr-3"><i class="fa fa-lightbulb-o"></i> Tắt đèn</a>
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            bool dangTheoDoi = ViewBag.DangTheoDoi ?? false;
+                            <a href="#" id="btnTheoDoiPlayer" class="text-light mr-3" data-animeid="@Model.Anime.AnimeId">
+                                <i class="fa @(dangTheoDoi ? "fa-heart" : "fa-heart-o")"></i> <span id="txtTheoDoiPlayer">@(dangTheoDoi ? "Đang theo dõi" : "Theo dõi")</span>
+                            </a>
+                        }
+                    </div>
+                    <div class="d-flex flex-wrap">
+                        <a href="#" id="btnPhongTo" class="text-light mr-3"><i class="fa fa-expand"></i> Phóng to</a>
+                        @if (Model.LoaiNguonVideo != "Embed")
+                        {
+                            <a href="#" id="btnChupAnh" class="text-light mr-3"><i class="fa fa-camera"></i> Chụp ảnh</a>
+                            <a href="@Model.DuongDanVideo" download class="text-light mr-3"><i class="fa fa-download"></i> Tải về</a>
+                        }
+                        <a asp-controller="TheoDoi" asp-action="Index" class="text-light"><i class="fa fa-history"></i> Lịch sử xem</a>
+                    </div>
+                </div>
+
+                <div class="anime__details__episodes">
+                    <div class="section-title"><h5>@Model.Anime.TenAnime</h5></div>
+                    @foreach (var tap in Model.Anime.DanhSachTap)
+                    {
+                        <a asp-controller="Anime" asp-action="Xem" asp-route-tapPhimId="@tap.TapPhimId"
+                           class="@(tap.TapPhimId == Model.TapPhimId ? "active" : "")">Tập @tap.SoTap</a>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="anime__details__review">
+                    <div class="section-title"><h5>Bình luận</h5></div>
+                    <div id="binhLuanBox">
+                        @foreach (var bl in Model.Anime.DanhSachBinhLuan.OrderByDescending(b => b.NgayBinhLuan))
+                        {
+                            <div class="anime__review__item">
+                                <div class="anime__review__item__pic">
+                                    <img src="@(string.IsNullOrEmpty(bl.NguoiDung.AnhDaiDien) ? "/template/img/anime/review-1.jpg" : bl.NguoiDung.AnhDaiDien)" alt="">
+                                </div>
+                                <div class="anime__review__item__text">
+                                    <h6>@(string.IsNullOrEmpty(bl.NguoiDung.HoTen) ? bl.NguoiDung.UserName : bl.NguoiDung.HoTen) - <span>@bl.NgayBinhLuan.ToString("dd/MM/yyyy HH:mm")</span></h6>
+                                    <p>@bl.NoiDung</p>
+                                </div>
+                            </div>
+                        }
+                        @if (!Model.Anime.DanhSachBinhLuan.Any())
+                        {
+                            <p class="text-muted">Chưa có bình luận nào.</p>
+                        }
+                    </div>
+                </div>
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <div class="anime__details__form">
+                        <div class="section-title"><h5>Bình luận của bạn</h5></div>
+                        <form id="formBinhLuan">
+                            <textarea id="noiDungBinhLuan" placeholder="Viết bình luận..."></textarea>
+                            <button type="button" id="btnGuiBinhLuan" data-animeid="@Model.Anime.AnimeId"><i class="fa fa-location-arrow"></i> Gửi</button>
+                        </form>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</section>
+
+@* Lab 17: React JS - thanh phan rieng theo doi tien do xem, tu dong luu moi 10s bang Ajax.
+   Khong ve UI (UI Plyr da co san tu template), chi chay ngam de goi API. *@
+<div id="reactProgressTracker" data-tapid="@Model.TapPhimId" style="display:none"></div>
+
+@section Scripts {
+<script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://cdn.jsdelivr.net/npm/@@babel/standalone@7/babel.min.js"></script>
+
+<script type="text/babel">
+    const { useEffect } = React;
+
+    function TrinhTheoDoiTienDo({ tapPhimId }) {
+        useEffect(() => {
+            const timer = setInterval(() => {
+                const video = document.querySelector('#player');
+                if (video && !video.paused) {
+                    fetch('/TheoDoi/LuuTienDo', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: `tapPhimId=${tapPhimId}&giayDaXem=${Math.floor(video.currentTime)}`
+                    }).catch(() => {});
+                }
+            }, 10000);
+            return () => clearInterval(timer);
+        }, [tapPhimId]);
+
+        return null;
+    }
+
+    const rootEl = document.getElementById('reactProgressTracker');
+    ReactDOM.createRoot(rootEl).render(<TrinhTheoDoiTienDo tapPhimId={rootEl.dataset.tapid} />);
+
+    $("#btnGuiBinhLuan").click(function () {
+        var btn = $(this);
+        var noiDung = $("#noiDungBinhLuan").val();
+        if (!noiDung.trim()) return;
+        $.post('/BinhLuan/Them', { animeId: btn.data('animeid'), noiDung: noiDung }, function (res) {
+            if (res.success) {
+                $("#binhLuanBox").prepend(
+                    '<div class="anime__review__item">' +
+                    '<div class="anime__review__item__pic"><img src="/template/img/anime/review-1.jpg" alt=""></div>' +
+                    '<div class="anime__review__item__text"><h6>' + res.hoTen + ' - <span>' + res.ngay + '</span></h6>' +
+                    '<p>' + res.noiDung + '</p></div></div>'
+                );
+                $("#noiDungBinhLuan").val('');
+            }
+        });
+    });
+
+    // Tat den: phu lop toi len toan trang, chi lam sang khu vuc player
+    $("#btnTatDen").click(function (e) {
+        e.preventDefault();
+        var overlay = $("#anh-sang-toi-overlay");
+        if (overlay.length) {
+            overlay.remove();
+            $(this).html('<i class="fa fa-lightbulb-o"></i> Tắt đèn');
+        } else {
+            $('<div id="anh-sang-toi-overlay"></div>').css({
+                position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+                background: 'rgba(0,0,0,.9)', zIndex: 1000, pointerEvents: 'none'
+            }).appendTo('body');
+            $('.anime__video__player').css({ position: 'relative', zIndex: 1001 });
+            $(this).html('<i class="fa fa-lightbulb-o"></i> Bật đèn');
+        }
+    });
+
+    // Phong to: fullscreen video hoac iframe (tuy loai nguon)
+    $("#btnPhongTo").click(function (e) {
+        e.preventDefault();
+        var el = document.getElementById('player') || document.getElementById('playerEmbed');
+        if (!el) return;
+        if (el.requestFullscreen) el.requestFullscreen();
+        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+    });
+
+    // Chup anh: capture frame hien tai cua video thanh anh PNG va tai xuong
+    $("#btnChupAnh").click(function (e) {
+        e.preventDefault();
+        var video = document.getElementById('player');
+        var canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+        var link = document.createElement('a');
+        link.download = 'anh-chup-' + Date.now() + '.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    });
+
+    // Theo doi ngay tren thanh player
+    $("#btnTheoDoiPlayer").click(function (e) {
+        e.preventDefault();
+        var btn = $(this);
+        $.post('/TheoDoi/Toggle', { animeId: btn.data('animeid') }, function (res) {
+            if (res.success) {
+                btn.find('i').attr('class', res.dangTheoDoi ? 'fa fa-heart' : 'fa fa-heart-o');
+                $('#txtTheoDoiPlayer').text(res.dangTheoDoi ? 'Đang theo dõi' : 'Theo dõi');
+            }
+        });
+    });
+</script>
+}

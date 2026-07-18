@@ -1,0 +1,39 @@
+@model List<AnimeVietsub.Core.Models.BinhLuan>
+@{ ViewData["Title"] = "Quản lý bình luận"; ViewData["ActiveMenu"] = "BinhLuan"; }
+
+<div class="card">
+    <div class="card-header"><h3 class="card-title">Danh sách bình luận</h3></div>
+    <div class="card-body">
+        <table class="table table-bordered table-striped">
+            <thead><tr><th>Người dùng</th><th>Anime</th><th>Nội dung</th><th>Ngày</th><th>Trạng thái</th><th>Hành động</th></tr></thead>
+            <tbody>
+                @foreach (var b in Model)
+                {
+                    <tr>
+                        <td>@(b.NguoiDung?.HoTen ?? b.NguoiDung?.UserName)</td>
+                        <td>@b.Anime?.TenAnime</td>
+                        <td>@b.NoiDung</td>
+                        <td>@b.NgayBinhLuan.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>@(b.DaAn ? "Đã ẩn" : "Hiển thị")</td>
+                        <td>
+                            <button class="btn btn-sm btn-warning" onclick="toggleAn(@b.BinhLuanId)">@(b.DaAn ? "Hiện lại" : "Ẩn")</button>
+                            <button class="btn btn-sm btn-danger" onclick="xoaBl(@b.BinhLuanId)">Xóa</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function toggleAn(id) {
+        $.post('/Admin/BinhLuan/ToggleAn', { id: id }, function (res) { if (res.success) location.reload(); });
+    }
+    function xoaBl(id) {
+        if (!confirm('Xóa bình luận này?')) return;
+        $.post('/Admin/BinhLuan/Xoa', { id: id }, function (res) { if (res.success) location.reload(); });
+    }
+</script>
+}
