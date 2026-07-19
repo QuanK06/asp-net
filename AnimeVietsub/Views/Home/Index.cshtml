@@ -39,7 +39,7 @@
                             <div class="hero__text">
                                 <div class="label">AnimeVietsub</div>
                                 <h2>Chào mừng đến với AnimeVietsub</h2>
-                                <p>Vào trang Admin để thêm anime nổi bật đầu tiên.</p>
+                                <p>Mong các bạn góp ý về các bộ phim anime mới.</p>
                             </div>
                         </div>
                     </div>
@@ -56,7 +56,7 @@
                 <div class="trending__product">
                     <div class="row">
                         <div class="col-lg-8 col-md-8 col-sm-8">
-                            <div class="section-title"><h4>Trending Now</h4></div>
+                            <div class="section-title"><h4>Hot</h4></div>
                         </div>
                         <div class="col-lg-4 col-md-4 col-sm-4">
                             <div class="btn__all"><a asp-controller="Anime" asp-action="DanhSach" class="primary-btn">Xem tất cả <span class="arrow_right"></span></a></div>
@@ -74,7 +74,7 @@
                 <div class="popular__product">
                     <div class="row">
                         <div class="col-lg-8 col-md-8 col-sm-8">
-                            <div class="section-title"><h4>Popular Shows</h4></div>
+                            <div class="section-title"><h4>Phổ biến</h4></div>
                         </div>
                         <div class="col-lg-4 col-md-4 col-sm-4">
                             <div class="btn__all"><a asp-controller="Anime" asp-action="DanhSach" class="primary-btn">Xem tất cả <span class="arrow_right"></span></a></div>
@@ -92,7 +92,7 @@
                 <div class="recent__product">
                     <div class="row">
                         <div class="col-lg-8 col-md-8 col-sm-8">
-                            <div class="section-title"><h4>Recently Added Shows</h4></div>
+                            <div class="section-title"><h4>Mới thêm hôm nay</h4></div>
                         </div>
                         <div class="col-lg-4 col-md-4 col-sm-4">
                             <div class="btn__all"><a asp-controller="Anime" asp-action="DanhSach" class="primary-btn">Xem tất cả <span class="arrow_right"></span></a></div>
@@ -136,7 +136,7 @@
                                 <a asp-controller="Anime" asp-action="ChiTiet" asp-route-id="@a.AnimeId" style="display:block">
                                     <div class="product__sidebar__view__item set-bg" data-setbg="@(string.IsNullOrEmpty(a.Poster) ? "/template/img/sidebar/tv-1.jpg" : a.Poster)">
                                         <div class="view"><i class="fa fa-eye"></i> @a.LuotXem</div>
-                                        <h5>@a.TenAnime</h5>
+                                        <h5 class="text-white">@a.TenAnime</h5>
                                     </div>
                                 </a>
                             }

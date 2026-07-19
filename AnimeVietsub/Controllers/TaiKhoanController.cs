@@ -37,6 +37,8 @@ namespace AnimeVietsub.Controllers
                 return !string.IsNullOrEmpty(returnUrl) ? Redirect(returnUrl) : RedirectToAction("Index", "Home");
 
             ModelState.AddModelError("", "Email hoặc mật khẩu không đúng");
+            ViewBag.Email = email; // giu lai email da nhap, nguoi dung chi can sua mat khau
+            ViewBag.ReturnUrl = returnUrl;
             return View();
         }
 

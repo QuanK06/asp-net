@@ -22,7 +22,7 @@
                     <div asp-validation-summary="All" class="text-danger"></div>
                     <form method="post" asp-action="DangNhap" asp-route-returnUrl="@ViewBag.ReturnUrl">
                         <div class="input__item">
-                            <input type="email" name="email" placeholder="Email">
+                            <input type="email" name="email" placeholder="Email" value="@ViewBag.Email">
                             <span class="icon_mail"></span>
                         </div>
                         <div class="input__item">

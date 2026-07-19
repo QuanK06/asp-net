@@ -63,6 +63,10 @@ namespace AnimeVietsub.Controllers
                 ViewBag.TenTrang = "Tất cả Anime";
             }
 
+            // Loc/phan trang bang Ajax: neu la request Ajax, chi tra ve phan grid + phan trang (khong reload ca trang)
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                return PartialView("_DanhSachKetQua", ds);
+
             return View(ds);
         }
 

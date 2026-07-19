@@ -21,7 +21,6 @@ namespace AnimeVietsub.Core.Models
         // Lab 06 (Upload hinh anh Ajax) ap dung cho Poster/Thumbnail
         public string Thumbnail { get; set; }
 
-        // DOI: khong upload file that len server nua (Somee free khong du dung luong),
         // chuyen sang nhap LINK video (mp4 truc tiep hoac link nhung YouTube/Google Drive...)
         [Required]
         public string DuongDanVideo { get; set; } // co the la link .mp4 truc tiep, hoac link embed (vd youtube.com/embed/xxx)

@@ -22,10 +22,10 @@
         <div class="row">
             @foreach (var t in Model)
             {
-                <div class="col-lg-3 col-md-4 col-sm-6">
-                    <a asp-controller="Anime" asp-action="DanhSach" asp-route-theLoaiId="@t.TheLoaiId" class="product__sidebar__view__item set-bg d-block mb-3"
-                       data-setbg="/template/img/sidebar/tv-1.jpg" style="height:120px">
-                        <h5>@t.TenTheLoai</h5>
+                <div class="col-lg-6 col-md-8 col-sm-12">
+                    <a asp-controller="Anime" asp-action="DanhSach" asp-route-theLoaiId="@t.TheLoaiId" class="product__sidebar__view__item set-bg d-block mb-4"
+                       style="height:60px">
+                        <h5 class="text-white">@t.TenTheLoai</h5>
                     </a>
                 </div>
             }

@@ -4,9 +4,7 @@
     ViewData["Title"] = "Danh sách Anime";
     var theLoais = ViewBag.TheLoais as List<TheLoai> ?? new List<TheLoai>();
     var topViews = ViewBag.TopViews as List<Anime> ?? new List<Anime>();
-    int tongSoTrang = ViewBag.TongSoTrang; int trangHienTai = ViewBag.TrangHienTai;
     int? theLoaiIdHienTai = ViewBag.TheLoaiIdHienTai;
-    string tenTrang = ViewBag.TenTrang ?? "Danh sách Anime";
 }
 
 <div class="breadcrumb-option">
@@ -16,7 +14,6 @@
                 <div class="breadcrumb__links">
                     <a asp-controller="Home" asp-action="Index"><i class="fa fa-home"></i> Trang chủ</a>
                     <a asp-action="DanhSach">Danh sách Anime</a>
-                    <span>@tenTrang</span>
                 </div>
             </div>
         </div>
@@ -27,31 +24,8 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-8">
-                <div class="product__page__content">
-                    <div class="product__page__title">
-                        <div class="row">
-                            <div class="col-lg-8 col-md-8 col-sm-6">
-                                <div class="section-title"><h4>@tenTrang</h4></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        @foreach (var a in Model)
-                        {
-                            <partial name="_AnimeCard" model="a" />
-                        }
-                        @if (!Model.Any()) { <p class="text-muted px-3">Chưa có anime nào.</p> }
-                    </div>
-
-                    @if (tongSoTrang > 1)
-                    {
-                        <div class="product__pagination">
-                            @for (int i = 1; i <= tongSoTrang; i++)
-                            {
-                                <a asp-action="DanhSach" asp-route-theLoaiId="@theLoaiIdHienTai" asp-route-trang="@i" class="@(i == trangHienTai ? "current-page" : "")">@i</a>
-                            }
-                        </div>
-                    }
+                <div class="product__page__content" id="ketQuaDanhSach">
+                    <partial name="_DanhSachKetQua" model="Model" />
                 </div>
             </div>
 
@@ -59,11 +33,8 @@
                 <div class="product__sidebar">
                     <div class="product__sidebar__view">
                         <div class="section-title"><h5>Lọc nâng cao</h5></div>
-                        <form method="get" asp-action="DanhSach">
-                            @if (theLoaiIdHienTai.HasValue)
-                            {
-                                <input type="hidden" name="theLoaiId" value="@theLoaiIdHienTai" />
-                            }
+                        <form method="get" asp-action="DanhSach" id="formLocNangCao">
+                            <input type="hidden" name="theLoaiId" id="inputTheLoaiId" value="@theLoaiIdHienTai" />
                             <div class="form-group mb-2">
                                 <label class="text-light">Định dạng phát sóng</label>
                                 <select name="dinhDang" class="w-100">
@@ -105,16 +76,16 @@
                                 </select>
                             </div>
                             <button type="submit" class="primary-btn w-100 text-center" style="border:none">Áp dụng</button>
-                            <a asp-action="DanhSach" class="d-block text-center text-muted mt-2">Xóa lọc</a>
+                            <a href="#" id="btnXoaLoc" class="d-block text-center text-muted mt-2">Xóa lọc</a>
                         </form>
                     </div>
                     <div class="product__sidebar__view">
                         <div class="section-title"><h5>Thể loại</h5></div>
-                        <ul class="filter__controls" style="flex-wrap:wrap">
-                            <li class="@(theLoaiIdHienTai == null ? "active" : "")"><a asp-action="DanhSach">Tất cả</a></li>
+                        <ul class="filter__controls" id="dsTheLoai" style="position:static; flex-wrap:wrap; margin-top:15px; padding-left:0">
+                            <li class="the-loai-item @(theLoaiIdHienTai == null ? "active" : "")" data-theloaiid="" style="margin-bottom:6px; cursor:pointer"><a href="#" style="color:inherit; text-decoration:none">Tất cả</a></li>
                             @foreach (var t in theLoais)
                             {
-                                <li class="@(theLoaiIdHienTai == t.TheLoaiId ? "active" : "")"><a asp-action="DanhSach" asp-route-theLoaiId="@t.TheLoaiId">@t.TenTheLoai</a></li>
+                                <li class="the-loai-item @(theLoaiIdHienTai == t.TheLoaiId ? "active" : "")" data-theloaiid="@t.TheLoaiId" style="margin-bottom:6px; cursor:pointer"><a href="#" style="color:inherit; text-decoration:none">@t.TenTheLoai</a></li>
                             }
                         </ul>
                     </div>
@@ -125,7 +96,7 @@
                             <a asp-controller="Anime" asp-action="ChiTiet" asp-route-id="@a.AnimeId" style="display:block">
                                 <div class="product__sidebar__view__item set-bg" data-setbg="@(string.IsNullOrEmpty(a.Poster) ? "/template/img/sidebar/tv-1.jpg" : a.Poster)">
                                     <div class="view"><i class="fa fa-eye"></i> @a.LuotXem</div>
-                                    <h5>@a.TenAnime</h5>
+                                    <h5 class="text-white">@a.TenAnime</h5>
                                 </div>
                             </a>
                         }
@@ -135,3 +106,64 @@
         </div>
     </div>
 </section>
+
+@section Scripts {
+<script>
+    // Lab "Loc nang cao" ban Ajax: khong tai lai trang khi loc / doi trang / chon the loai
+    function taiKetQua(trang) {
+        var $form = $('#formLocNangCao');
+        var duLieu = $form.serialize() + '&trang=' + (trang || 1);
+
+        $.ajax({
+            url: '/Anime/DanhSach',
+            data: duLieu,
+            method: 'GET',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            success: function (html) {
+                $('#ketQuaDanhSach').html(html);
+                $('html, body').animate({ scrollTop: $('#ketQuaDanhSach').offset().top - 100 }, 300);
+                ganSuKienPhanTrang();
+                // cap nhat URL tren thanh dia chi de bam F5/Back van dung filter dang xem (khong bat buoc nhung tien loi hon)
+                var urlMoi = '/Anime/DanhSach?' + $form.serialize() + '&trang=' + (trang || 1);
+                window.history.replaceState(null, '', urlMoi);
+            }
+        });
+    }
+
+    function ganSuKienPhanTrang() {
+        $('.lien-ket-trang').off('click').on('click', function (e) {
+            e.preventDefault();
+            taiKetQua($(this).data('trang'));
+        });
+    }
+
+    $(function () {
+        ganSuKienPhanTrang();
+
+        // Submit form loc nang cao bang Ajax
+        $('#formLocNangCao').on('submit', function (e) {
+            e.preventDefault();
+            taiKetQua(1);
+        });
+
+        // Bam vao 1 the loai -> loc ngay, khong tai lai trang
+        $(document).on('click', '.the-loai-item', function (e) {
+            e.preventDefault();
+            $('#inputTheLoaiId').val($(this).data('theloaiid'));
+            $('.the-loai-item').removeClass('active');
+            $(this).addClass('active');
+            taiKetQua(1);
+        });
+
+        // Xoa loc
+        $('#btnXoaLoc').on('click', function (e) {
+            e.preventDefault();
+            $('#formLocNangCao')[0].reset();
+            $('#inputTheLoaiId').val('');
+            $('.the-loai-item').removeClass('active');
+            $('.the-loai-item[data-theloaiid=""]').addClass('active');
+            taiKetQua(1);
+        });
+    });
+</script>
+}
